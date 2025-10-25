@@ -10,8 +10,11 @@ Scatters takes your text files (`.txt`, `.md`, `.epub`) and creates randomized w
 ### From GitHub
 
 ```bash
-# Install directly from the repository
+# Install the latest version
 cargo install --git https://github.com/jo56/scatters
+
+# Install a specific release
+cargo install --git https://github.com/jo56/scatters --tag v0.1.0
 
 # Or clone and build locally
 git clone https://github.com/jo56/scatters.git
