@@ -7,7 +7,7 @@ Scatters takes your text files (`.txt`, `.md`, `.epub`) and creates randomized w
 
 ## Preview
 
-![Scatters running with gruvbox theme](assets/screenshot-gruvbox-2.png)
+![Scatters running with gruvbox theme](assets/screenshot-gruvbox.png)
 
 *Example run with gruvbox theme*
 
