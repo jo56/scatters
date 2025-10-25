@@ -5,11 +5,11 @@ Scatters takes your text files (`.txt`, `.md`, `.epub`) and creates randomized w
 ![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=flat&logo=rust&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
+## Preview
 
 ![Scatters running with gruvbox theme](assets/screenshot-gruvbox-4.png)
 
 *Example run with gruvbox theme*
-
 
 ## Installation
 
