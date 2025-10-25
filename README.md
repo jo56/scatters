@@ -55,7 +55,7 @@ Scatters remembers the last directory you used, so after the first run, you can 
 
 - `↑/↓` - Adjust word density
 - `←/→` - Navigate between words (highlights visited words)
-- `Space` - Toggle current word highlight style (dimmed/bright)
+- `Space` - Toggle current word highlight style (unique/plural)
 - `r` - Reroll/regenerate the scatter
 - `q` or `Ctrl+C` - Quit
 
