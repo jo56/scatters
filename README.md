@@ -7,15 +7,13 @@ Scatters takes your text files (`.txt`, `.md`, `.epub`) and creates randomized w
 
 ## Installation
 
-### From crates.io
+### From GitHub
 
 ```bash
-cargo install scatters
-```
+# Install directly from the repository
+cargo install --git https://github.com/jo56/scatters
 
-### From source
-
-```bash
+# Or clone and build locally
 git clone https://github.com/jo56/scatters.git
 cd scatters
 cargo install --path .
