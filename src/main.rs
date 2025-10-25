@@ -241,6 +241,9 @@ fn run_app<B: ratatui::backend::Backend>(
                     KeyCode::Down => {
                         app.decrease_density();
                     }
+                    KeyCode::Char(' ') => {
+                        app.toggle_current_highlight();
+                    }
                     _ => {}
                 }
             }
