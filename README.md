@@ -7,7 +7,7 @@ Scatters takes your text files (`.txt`, `.md`, `.epub`) and creates randomized w
 
 ## Preview
 
-![Scatters running with gruvbox theme](assets/screenshot-gruvbox.png)
+![Scatters running with gruvbox theme](assets/gruvbox-preview.png)
 
 *Example run with the gruvbox theme*
 
@@ -47,9 +47,9 @@ Scatters remembers the last directory you used, so after the first run, you can 
 ### Available Themes
 
 - `monochrome` - Black and white (default)
-- `nord` - Cool arctic palette 
-- `gruvbox` - Retro warm colors
-- `rosepine` - Soft purple and pink tones
+- `nord` - Cool arctic palette ([Nord](https://www.nordtheme.com/) by Arctic Ice Studio)
+- `gruvbox` - Retro warm colors ([Gruvbox](https://github.com/morhetz/gruvbox) by morhetz)
+- `rosepine` - Soft purple and pink tones ([Rosé Pine](https://rosepinetheme.com/))
 
 ### Controls
 
