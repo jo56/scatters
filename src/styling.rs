@@ -51,7 +51,7 @@ impl AppStyling {
         }
     }
 
-    // Gruvbox theme matching bottom exactly
+    // Gruvbox theme
     fn gruvbox_theme() -> Self {
         const GRUVBOX_BG: &str = "#282828"; // Gruvbox dark background
         const GRUVBOX_FG: &str = "#ebdbb2"; // Gruvbox light foreground
@@ -74,7 +74,7 @@ impl AppStyling {
         }
     }
 
-    // Monochrome theme - white background, black text and highlights
+    // Monochrome theme
     fn monochrome_theme() -> Self {
         Self {
             border_style: Style::default().fg(Color::Black).bg(Color::White),
@@ -93,7 +93,7 @@ impl AppStyling {
         }
     }
 
-    // Rose Pine theme - soft, muted purple/pink aesthetic
+    // Rose Pine theme 
     fn rosepine_theme() -> Self {
         const ROSE_BG: &str = "#191724"; // Rose Pine deep purple-black background
         const ROSE_FG: &str = "#e0def4"; // Rose Pine light lavender foreground
@@ -131,6 +131,3 @@ impl AppStyling {
         Style::default().fg(Self::hex_color(hex))
     }
 }
-
-// Bottom uses terminal default backgrounds (typically black)
-// We should not set custom backgrounds to match bottom's behavior
