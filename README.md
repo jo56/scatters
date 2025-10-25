@@ -11,7 +11,6 @@ Scatters takes your text files (`.txt`, `.md`, `.epub`) and creates randomized w
 
 *Example run with gruvbox theme*
 
-
 ## Installation
 
 ### From GitHub
