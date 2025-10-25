@@ -14,14 +14,14 @@ use crossterm::{
 use ratatui::{backend::CrosstermBackend, Terminal};
 use std::fs;
 use std::io;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(ClapParser, Debug)]
 #[command(name = "scatters")]
 #[command(about = "A cut-up poetry generator from text files", long_about = None)]
 struct Args {
-    #[arg(help = "Directory containing text files to parse")]
-    directory: PathBuf,
+    #[arg(help = "Directory containing text files to parse (optional - uses last path if omitted)")]
+    directory: Option<PathBuf>,
 
     #[arg(
         short = 't',
@@ -33,23 +33,79 @@ struct Args {
     theme: String,
 }
 
+/// Get the config directory for scatters
+fn get_config_dir() -> Result<PathBuf, Box<dyn std::error::Error>> {
+    let config_dir = dirs::config_dir()
+        .ok_or("Could not determine config directory")?
+        .join("scatters");
+
+    // Create the config directory if it doesn't exist
+    fs::create_dir_all(&config_dir)?;
+
+    Ok(config_dir)
+}
+
+/// Save the last used path to config file
+fn save_last_path(path: &Path) -> Result<(), Box<dyn std::error::Error>> {
+    let config_dir = get_config_dir()?;
+    let config_file = config_dir.join("last_path.txt");
+    fs::write(config_file, path.to_string_lossy().as_bytes())?;
+    Ok(())
+}
+
+/// Load the last used path from config file
+fn load_last_path() -> Result<PathBuf, Box<dyn std::error::Error>> {
+    let config_dir = get_config_dir()?;
+    let config_file = config_dir.join("last_path.txt");
+
+    if !config_file.exists() {
+        return Err("No previous path saved. Please provide a directory path.".into());
+    }
+
+    let path_str = fs::read_to_string(config_file)?;
+    let path = PathBuf::from(path_str.trim());
+
+    if !path.exists() {
+        return Err(format!("Previously saved path '{}' no longer exists", path.display()).into());
+    }
+
+    Ok(path)
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
-    if !args.directory.is_dir() {
+    // Determine which directory to use
+    let directory = match args.directory {
+        Some(dir) => dir,
+        None => {
+            match load_last_path() {
+                Ok(path) => {
+                    println!("Using last path: {}", path.display());
+                    path
+                }
+                Err(e) => {
+                    eprintln!("Error: {}", e);
+                    std::process::exit(1);
+                }
+            }
+        }
+    };
+
+    if !directory.is_dir() {
         eprintln!(
             "Error: '{}' is not a valid directory",
-            args.directory.display()
+            directory.display()
         );
         std::process::exit(1);
     }
 
-    println!("Scanning directory: {}", args.directory.display());
+    println!("Scanning directory: {}", directory.display());
 
     let mut word_bank = word_bank::WordBank::new();
     let mut file_count = 0;
 
-    for entry in fs::read_dir(&args.directory)? {
+    for entry in fs::read_dir(&directory)? {
         let entry = entry?;
         let path = entry.path();
 
@@ -83,6 +139,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if word_bank.word_count() == 0 {
         eprintln!("Error: No words found in directory");
         std::process::exit(1);
+    }
+
+    // Save the successfully used directory for next time
+    if let Err(e) = save_last_path(&directory) {
+        eprintln!("Warning: Could not save path for next time: {}", e);
     }
 
     println!("Starting TUI...");

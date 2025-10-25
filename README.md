@@ -27,10 +27,15 @@ cargo install --path .
 # Basic usage
 scatters /path/to/text/files
 
+# Use the last path (after running once)
+scatters
+
 # With a specific theme
 scatters /path/to/text/files --theme rosepine
-scatters /path/to/text/files -t nord
+scatters -t nord  # Uses last path with nord theme
 ```
+
+Scatters remembers the last directory you used, so after the first run, you can simply type `scatters` without a path argument. The last-used path is saved in your system's config directory (`~/.config/scatters/` on Linux/macOS, `%APPDATA%\scatters\` on Windows).
 
 ### Available Themes
 
