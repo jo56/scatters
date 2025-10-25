@@ -1,5 +1,5 @@
 use ratatui::{
-    style::{Color, Modifier, Style},
+    style::{Color, Style},
     widgets::BorderType,
 };
 
@@ -43,8 +43,7 @@ impl AppStyling {
             selected_text_style: Self::hex_style(NORD_BG)
                 .bg(Self::hex_color(NORD_FROST_BLUE)),  // Dark on bright blue
             current_selected_style: Self::hex_style(NORD_BG)
-                .bg(Self::hex_color(NORD_FROST_CYAN))  // Dark on cyan for current selection
-                .add_modifier(Modifier::BOLD),
+                .bg(Self::hex_color(NORD_FROST_CYAN)),  // Dark on cyan for current selection
             density_bar_style: Self::hex_style(NORD_FROST_BLUE),  // Same as border
             border_type: BorderType::Plain,
             use_background_fill: false,  // No background fill for nord theme
@@ -66,8 +65,7 @@ impl AppStyling {
             selected_text_style: Self::hex_style(GRUVBOX_DARK)
                 .bg(Self::hex_color(GRUVBOX_FG)),  // Dark text on light background (inverted)
             current_selected_style: Self::hex_style(GRUVBOX_DARK)
-                .bg(Self::hex_color(GRUVBOX_YELLOW))  // Dark text on yellow background for current selection
-                .add_modifier(Modifier::BOLD),
+                .bg(Self::hex_color(GRUVBOX_YELLOW)),  // Dark text on yellow background for current selection
             density_bar_style: Self::hex_style(GRUVBOX_FG).bg(Self::hex_color(GRUVBOX_BG)),  // Same as border
             border_type: BorderType::Plain,
             use_background_fill: true,  // Enable background fill for gruvbox theme
@@ -85,8 +83,7 @@ impl AppStyling {
                 .bg(Color::Black),  // Black on black = solid black boxes
             current_selected_style: Style::default()
                 .fg(Color::Black)
-                .bg(Color::Black)  // Black on black = solid black boxes
-                .add_modifier(Modifier::BOLD),
+                .bg(Color::Black),  // Black on black = solid black boxes
             density_bar_style: Style::default().fg(Color::Black).bg(Color::White),  // Same as border
             border_type: BorderType::Plain,
             use_background_fill: true,  // Enable background fill for seamless white background
@@ -109,8 +106,7 @@ impl AppStyling {
             selected_text_style: Self::hex_style(ROSE_BG)
                 .bg(Self::hex_color(ROSE_LOVE)),  // Dark on rose pink
             current_selected_style: Self::hex_style(ROSE_BG)
-                .bg(Self::hex_color(ROSE_GOLD))  // Dark on warm gold for current selection
-                .add_modifier(Modifier::BOLD),
+                .bg(Self::hex_color(ROSE_GOLD)),  // Dark on warm gold for current selection
             density_bar_style: Self::hex_style(ROSE_LOVE).bg(Self::hex_color(ROSE_BG)),  // Rose pink like highlighted text
             border_type: BorderType::Plain,
             use_background_fill: true,  // Enable background fill for rose pine theme
