@@ -15,6 +15,7 @@ pub struct App {
     pub selected_word_index: Option<usize>,
     pub highlighted_words: Vec<usize>,  // Track all highlighted words
     pub density: f32,  // Density multiplier for word generation (0.1 to 6.0)
+    pub use_dimmed_current: bool,  // If true, current selection uses visited color instead of bright color
 }
 
 impl App {
@@ -30,6 +31,7 @@ impl App {
             selected_word_index: Some(0),
             highlighted_words: vec![0],  // Start with first word highlighted
             density: 1.0,  // Start at default density
+            use_dimmed_current: false,  // Start with bright current selection
         }
     }
 
@@ -73,6 +75,11 @@ impl App {
     pub fn decrease_density(&mut self) {
         self.density = ((self.density - 0.3) * 10.0).round() / 10.0;
         self.density = self.density.max(0.1);
+    }
+
+    pub fn toggle_current_highlight(&mut self) {
+        // Toggle between bright current selection and dimmed (visited color) current selection
+        self.use_dimmed_current = !self.use_dimmed_current;
     }
 }
 
@@ -218,7 +225,11 @@ fn render_canvas(f: &mut Frame, area: Rect, app: &App) {
 
                 // Apply three-tier styling: current selected, previously highlighted, or default
                 let word_style = if app.selected_word_index == Some(index) {
-                    app.styling.current_selected_style  // Currently selected - brightest
+                    if app.use_dimmed_current {
+                        app.styling.selected_text_style  // Currently selected but dimmed (same as visited)
+                    } else {
+                        app.styling.current_selected_style  // Currently selected - brightest
+                    }
                 } else if app.highlighted_words.contains(&index) {
                     app.styling.selected_text_style  // Previously visited
                 } else {
