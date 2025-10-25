@@ -18,11 +18,12 @@ impl AppStyling {
     pub fn from_theme(theme: &str) -> Result<Self, String> {
         match theme.to_lowercase().as_str() {
             "monochrome" => Ok(Self::monochrome_theme()),
+            "softmono" => Ok(Self::softmono_theme()),
             "nord" => Ok(Self::nord_theme()),
             "gruvbox" => Ok(Self::gruvbox_theme()),
             "rosepine" => Ok(Self::rosepine_theme()),
             _ => Err(format!(
-                "Invalid theme '{}'. Valid themes: monochrome, nord, gruvbox, rosepine",
+                "Invalid theme '{}'. Valid themes: monochrome, softmono, nord, gruvbox, rosepine",
                 theme
             )),
         }
@@ -87,6 +88,26 @@ impl AppStyling {
             density_bar_style: Style::default().fg(Color::Black).bg(Color::White),  // Same as border
             border_type: BorderType::Plain,
             use_background_fill: true,  // Enable background fill for seamless white background
+        }
+    }
+
+    // Soft Monochrome theme - Like monochrome but with soft pink-white (#FCF6F8)
+    fn softmono_theme() -> Self {
+        const SOFT_WHITE: &str = "#FCF6F8"; // Soft pink-white background
+
+        Self {
+            border_style: Style::default().fg(Color::Black).bg(Self::hex_color(SOFT_WHITE)),
+            highlighted_border_style: Style::default().fg(Color::Black).bg(Self::hex_color(SOFT_WHITE)),
+            text_style: Style::default().fg(Color::Black).bg(Self::hex_color(SOFT_WHITE)),
+            selected_text_style: Style::default()
+                .fg(Color::Black)
+                .bg(Color::Black),  // Black on black = solid black boxes
+            current_selected_style: Style::default()
+                .fg(Color::Black)
+                .bg(Color::Black),  // Black on black = solid black boxes
+            density_bar_style: Style::default().fg(Color::Black).bg(Self::hex_color(SOFT_WHITE)),  // Same as border
+            border_type: BorderType::Plain,
+            use_background_fill: true,  // Enable background fill for seamless soft white background
         }
     }
 
