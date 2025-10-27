@@ -121,8 +121,23 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
     let sections = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Length(4), Constraint::Length(3), Constraint::Length(6)])
-        .margin(1)
         .split(area);
+
+    let container_area = Rect {
+        x: area.x,
+        y: sections[0].y,
+        width: area.width,
+        height: sections[0].height + sections[1].height + sections[2].height,
+    };
+
+    let mut sidebar_container = widget_block(app.styling.border_type)
+        .border_style(app.styling.border_style);
+
+    if app.styling.use_background_fill {
+        sidebar_container = sidebar_container.style(app.styling.text_style);
+    }
+
+    f.render_widget(sidebar_container, container_area);
 
     let mut scatters_block = widget_block(app.styling.border_type)
         .border_style(app.styling.border_style)
