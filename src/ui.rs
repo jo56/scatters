@@ -67,26 +67,20 @@ impl App {
         }
     }
 
-    pub fn increase_density(&mut self, bar_width: u16) {
-        let density_per_pixel = (6.0 - 0.1) / bar_width.max(1) as f32;
-        self.density = (self.density + density_per_pixel).min(6.0);
+    pub fn increase_density(&mut self) {
+        self.density = ((self.density + 0.3) * 10.0).round() / 10.0;
+        self.density = self.density.min(6.0);
     }
 
-    pub fn decrease_density(&mut self, bar_width: u16) {
-        let density_per_pixel = (6.0 - 0.1) / bar_width.max(1) as f32;
-        self.density = (self.density - density_per_pixel).max(0.1);
+    pub fn decrease_density(&mut self) {
+        self.density = ((self.density - 0.3) * 10.0).round() / 10.0;
+        self.density = self.density.max(0.1);
     }
 
     pub fn toggle_current_highlight(&mut self) {
         // Toggle between bright current selection and dimmed (visited color) current selection
         self.use_dimmed_current = !self.use_dimmed_current;
     }
-}
-
-pub fn get_density_bar_width(terminal_width: u16) -> u16 {
-    let sidebar_width = terminal_width * 25 / 100;
-    let section_width = sidebar_width.saturating_sub(2);
-    section_width.saturating_sub(2).max(8)
 }
 
 pub fn ui(f: &mut Frame, app: &App) {

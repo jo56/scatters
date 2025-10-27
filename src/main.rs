@@ -236,14 +236,10 @@ fn run_app<B: ratatui::backend::Backend>(
                         app.select_prev_word();
                     }
                     KeyCode::Up => {
-                        let size = terminal.size()?;
-                        let bar_width = ui::get_density_bar_width(size.width);
-                        app.increase_density(bar_width);
+                        app.increase_density();
                     }
                     KeyCode::Down => {
-                        let size = terminal.size()?;
-                        let bar_width = ui::get_density_bar_width(size.width);
-                        app.decrease_density(bar_width);
+                        app.decrease_density();
                     }
                     KeyCode::Char(' ') => {
                         app.toggle_current_highlight();
