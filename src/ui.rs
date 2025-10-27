@@ -120,21 +120,84 @@ pub fn ui(f: &mut Frame, app: &App) {
 fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
     let sections = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Length(7), Constraint::Length(3)])
-        .margin(1)
+        .constraints([Constraint::Length(4), Constraint::Length(3), Constraint::Length(7)])
         .split(area);
 
-    // Controls section
-    let mut controls_block = widget_block(app.styling.border_type)
+    let container_area = Rect {
+        x: area.x,
+        y: sections[0].y,
+        width: area.width,
+        height: sections[0].height + sections[1].height + sections[2].height,
+    };
+
+    let mut sidebar_container = widget_block(app.styling.border_type)
+        .border_style(app.styling.border_style);
+
+    if app.styling.use_background_fill {
+        sidebar_container = sidebar_container.style(app.styling.text_style);
+    }
+
+    f.render_widget(sidebar_container, container_area);
+
+    let mut scatters_block = widget_block(app.styling.border_type)
         .border_style(app.styling.border_style)
         .title_top(Line::from(Span::styled(" Scatters ", app.styling.text_style)));
 
     if app.styling.use_background_fill {
-        controls_block = controls_block.style(app.styling.text_style);
+        scatters_block = scatters_block.style(app.styling.text_style);
     }
 
     let count_text = format!("words {} / {}", app.scattered_words.len(), app.word_count);
     let highlighted_text = format!("selected {} / {}", app.highlighted_words.len(), app.scattered_words.len());
+
+    let scatters_text = vec![
+        Line::from(Span::styled(count_text, app.styling.text_style)),
+        Line::from(Span::styled(highlighted_text, app.styling.text_style)),
+    ];
+
+    let scatters = Paragraph::new(scatters_text)
+        .block(scatters_block)
+        .alignment(Alignment::Left);
+
+    f.render_widget(scatters, sections[0]);
+
+    let mut density_block = widget_block(app.styling.border_type)
+        .border_style(app.styling.border_style)
+        .title_top(Line::from(Span::styled(" Density ", app.styling.text_style)));
+
+    if app.styling.use_background_fill {
+        density_block = density_block.style(app.styling.text_style);
+    }
+
+    let available_width = sections[1].width.saturating_sub(2).max(8) as usize;
+    let bar_width = available_width;
+    let density_ratio = (app.density - 0.1) / (6.0 - 0.1);
+    let filled_width = (density_ratio * bar_width as f32) as usize;
+    let empty_width = bar_width - filled_width;
+
+    let filled_bar = "█".repeat(filled_width);
+    let empty_bar = " ".repeat(empty_width);
+
+    let density_text = vec![
+        Line::from(vec![
+            Span::styled(filled_bar, app.styling.density_bar_style),
+            Span::styled(empty_bar, app.styling.text_style),
+        ]),
+    ];
+
+    let density = Paragraph::new(density_text)
+        .block(density_block)
+        .alignment(Alignment::Left);
+
+    f.render_widget(density, sections[1]);
+
+    let mut controls_block = widget_block(app.styling.border_type)
+        .border_style(app.styling.border_style)
+        .title_top(Line::from(Span::styled(" Controls ", app.styling.text_style)));
+
+    if app.styling.use_background_fill {
+        controls_block = controls_block.style(app.styling.text_style);
+    }
 
     let controls_text = vec![
         Line::from(vec![
@@ -149,8 +212,14 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
             Span::styled("r", app.styling.text_style),
             Span::styled(" - reroll", app.styling.text_style),
         ]),
-        Line::from(Span::styled(count_text, app.styling.text_style)),
-        Line::from(Span::styled(highlighted_text, app.styling.text_style)),
+        Line::from(vec![
+            Span::styled("v", app.styling.text_style),
+            Span::styled(" - view", app.styling.text_style),
+        ]),
+        Line::from(vec![
+            Span::styled("q", app.styling.text_style),
+            Span::styled(" - quit", app.styling.text_style),
+        ]),
     ];
 
     let controls = Paragraph::new(controls_text)
@@ -158,41 +227,7 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
         .alignment(Alignment::Left)
         .wrap(Wrap { trim: true });
 
-    f.render_widget(controls, sections[0]);
-
-    // Info section
-    let mut info_block = widget_block(app.styling.border_type)
-        .border_style(app.styling.border_style)
-        .title_top(Line::from(Span::styled(" Density ", app.styling.text_style)));
-
-    if app.styling.use_background_fill {
-        info_block = info_block.style(app.styling.text_style);
-    }
-
-    // Create density bar visualization
-    // Density ranges from 0.1 to 6.0, bar width is based on section width
-    // Account for borders (2 chars) to span full width
-    let available_width = sections[1].width.saturating_sub(2).max(8) as usize;
-    let bar_width = available_width; // Use full available width
-    let density_ratio = (app.density - 0.1) / (6.0 - 0.1); // Normalize to 0.0-1.0
-    let filled_width = (density_ratio * bar_width as f32) as usize;
-    let empty_width = bar_width - filled_width;
-
-    let filled_bar = "█".repeat(filled_width);
-    let empty_bar = " ".repeat(empty_width);
-
-    let info_text = vec![
-        Line::from(vec![
-            Span::styled(filled_bar, app.styling.density_bar_style),
-            Span::styled(empty_bar, app.styling.text_style),
-        ]),
-    ];
-
-    let info = Paragraph::new(info_text)
-        .block(info_block)
-        .alignment(Alignment::Left);
-
-    f.render_widget(info, sections[1]);
+    f.render_widget(controls, sections[2]);
 }
 
 fn render_canvas(f: &mut Frame, area: Rect, app: &App) {

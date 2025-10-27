@@ -7,7 +7,7 @@ Scatters takes your text files (`.txt`, `.md`, `.epub`) and creates randomized w
 
 ## Preview
 
-![Scatters running with gruvbox theme](assets/screenshot-gruvbox-4.png)
+![Scatters running with gruvbox theme](assets/screenshot-gruvbox-5.png)
 
 *Example run with gruvbox theme*
 
@@ -56,8 +56,9 @@ Scatters remembers the last directory you used, so after the first run, you can 
 
 - `↑/↓` - Adjust word density
 - `←/→` - Navigate between words (highlights visited words)
-- `Space` - Toggle current word highlight style (unique/plural)
+- `Space` - Toggle current word highlight style (only on compatible themes)
 - `r` - Reroll/regenerate the scatter
+- `v` - Toggle full window collage
 - `q` or `Ctrl+C` - Quit
 
 ## How It Works
