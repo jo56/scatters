@@ -91,7 +91,7 @@ pub fn get_density_bar_width(terminal_width: u16) -> u16 {
     section_width.saturating_sub(2).max(8)
 }
 
-fn calculate_sidebar_width(app: &App) -> u16 {
+pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
     // Calculate the longest text line in each section
     let count_text = format!("words {} / {}", app.scattered_words.len(), app.word_count);
     let highlighted_text = format!("selected {} / {}", app.highlighted_words.len(), app.scattered_words.len());
@@ -136,7 +136,7 @@ pub fn ui(f: &mut Frame, app: &App) {
     } else {
         // Normal mode: sidebar + canvas layout
         // Calculate sidebar width based on content
-        let sidebar_width = calculate_sidebar_width(app);
+        let sidebar_width = calculate_sidebar_width_for_app(app);
 
         let main_layout = Layout::default()
             .direction(Direction::Horizontal)

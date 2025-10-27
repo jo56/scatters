@@ -3,6 +3,7 @@ use ratatui::{
     widgets::BorderType,
 };
 
+#[derive(Clone)]
 pub struct AppStyling {
     pub border_style: Style,
     pub highlighted_border_style: Style,
