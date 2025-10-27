@@ -120,7 +120,7 @@ pub fn ui(f: &mut Frame, app: &App) {
 fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
     let sections = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Length(4), Constraint::Length(3), Constraint::Length(6)])
+        .constraints([Constraint::Length(4), Constraint::Length(3), Constraint::Length(7)])
         .split(area);
 
     let container_area = Rect {
@@ -215,6 +215,10 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
         Line::from(vec![
             Span::styled("v", app.styling.text_style),
             Span::styled(" - view", app.styling.text_style),
+        ]),
+        Line::from(vec![
+            Span::styled("q", app.styling.text_style),
+            Span::styled(" - quit", app.styling.text_style),
         ]),
     ];
 
