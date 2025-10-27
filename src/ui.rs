@@ -112,21 +112,41 @@ pub fn ui(f: &mut Frame, app: &App) {
             .constraints([Constraint::Percentage(25), Constraint::Percentage(75)])
             .split(frame_area);
 
-        render_sidebar(f, main_layout[0], app);
+        // Calculate sidebar height needed for the three boxes
+        // 4 (info) + 3 (density) + 6 (controls) + 2 (outer border) = 15
+        let sidebar_height = 15;
+
+        let sidebar_vertical = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Length(sidebar_height), Constraint::Min(0)])
+            .split(main_layout[0]);
+
+        render_sidebar(f, sidebar_vertical[0], app);
         render_canvas(f, main_layout[1], app);
     }
 }
 
 fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
+    // Create outer border around all three boxes with "Scatters" title
+    let mut outer_block = widget_block(app.styling.border_type)
+        .border_style(app.styling.border_style)
+        .title_top(Line::from(Span::styled(" Scatters ", app.styling.text_style)));
+
+    if app.styling.use_background_fill {
+        outer_block = outer_block.style(app.styling.text_style);
+    }
+
+    let outer_inner = outer_block.inner(area);
+    f.render_widget(outer_block, area);
+
     let sections = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Length(4), Constraint::Length(3), Constraint::Length(6)])
-        .margin(1)
-        .split(area);
+        .split(outer_inner);
 
     let mut scatters_block = widget_block(app.styling.border_type)
         .border_style(app.styling.border_style)
-        .title_top(Line::from(Span::styled(" Scatters ", app.styling.text_style)));
+        .title_top(Line::from(Span::styled(" Info ", app.styling.text_style)));
 
     if app.styling.use_background_fill {
         scatters_block = scatters_block.style(app.styling.text_style);
