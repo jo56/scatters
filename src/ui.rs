@@ -91,6 +91,34 @@ pub fn get_density_bar_width(terminal_width: u16) -> u16 {
     section_width.saturating_sub(2).max(8)
 }
 
+pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
+    // Calculate the longest text line in each section
+    let count_text = format!("words {} / {}", app.scattered_words.len(), app.word_count);
+    let highlighted_text = format!("selected {} / {}", app.highlighted_words.len(), app.scattered_words.len());
+
+    // Scatters section: compare both lines
+    let scatters_width = count_text.len().max(highlighted_text.len());
+
+    // Density section: the bar + title
+    let density_width = 20; // A reasonable default for the density bar
+
+    // Controls section: find longest control line
+    let controls_lines = [
+        "↑/↓ - density",
+        "←/→ - highlight",
+        "r - reroll",
+        "v - view",
+        "q - quit",
+    ];
+    let controls_width = controls_lines.iter().map(|s| s.len()).max().unwrap_or(0);
+
+    // Take the maximum of all sections
+    let content_width = scatters_width.max(density_width).max(controls_width);
+
+    // Add padding for borders (2) and internal padding (2) and a bit extra (2)
+    (content_width as u16 + 6).min(80) // Cap at 80 to avoid overly wide sidebars
+}
+
 pub fn ui(f: &mut Frame, app: &App) {
     let frame_area = f.area();
 
@@ -107,9 +135,12 @@ pub fn ui(f: &mut Frame, app: &App) {
         render_canvas(f, frame_area, app);
     } else {
         // Normal mode: sidebar + canvas layout
+        // Calculate sidebar width based on content
+        let sidebar_width = calculate_sidebar_width_for_app(app);
+
         let main_layout = Layout::default()
             .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(25), Constraint::Percentage(75)])
+            .constraints([Constraint::Length(sidebar_width), Constraint::Min(0)])
             .split(frame_area);
 
         render_sidebar(f, main_layout[0], app);

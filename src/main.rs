@@ -160,12 +160,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let generator = scatters::ScattersGenerator::new(words);
 
     let size = terminal.size()?;
-    // Calculate actual canvas area (75% width, accounting for borders)
-    let canvas_width = (size.width * 75 / 100).saturating_sub(2);
-    let canvas_height = size.height.saturating_sub(2);
-    let scattered_words = generator.generate_with_density(canvas_width, canvas_height, 1.0);
 
-    // Initialize styling based on theme
+    // Initialize styling based on theme first (needed for canvas calculation)
     let styling = match styling::AppStyling::from_theme(&args.theme) {
         Ok(s) => s,
         Err(e) => {
@@ -173,6 +169,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             std::process::exit(1);
         }
     };
+
+    // Create temporary app to calculate sidebar width
+    let temp_app = ui::App::new(Vec::new(), word_count, styling.clone());
+    let sidebar_width = ui::calculate_sidebar_width_for_app(&temp_app);
+
+    // Calculate actual canvas area based on dynamic sidebar
+    let canvas_width = size.width.saturating_sub(sidebar_width).saturating_sub(2);
+    let canvas_height = size.height.saturating_sub(2);
+    let scattered_words = generator.generate_with_density(canvas_width, canvas_height, 1.0);
 
     let mut app = ui::App::new(scattered_words, word_count, styling);
 
@@ -226,7 +231,8 @@ fn run_app<B: ratatui::backend::Backend>(
                         let canvas_width = if app.fullscreen_mode {
                             size.width.saturating_sub(2)
                         } else {
-                            (size.width * 75 / 100).saturating_sub(2)
+                            let sidebar_width = ui::calculate_sidebar_width_for_app(&app);
+                            size.width.saturating_sub(sidebar_width).saturating_sub(2)
                         };
                         let canvas_height = size.height.saturating_sub(2);
                         let new_scattered = generator.generate_with_density(canvas_width, canvas_height, app.density);
