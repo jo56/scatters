@@ -4,7 +4,7 @@ use crate::styling::AppStyling;
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     text::{Line, Span},
-    widgets::{Paragraph, Wrap},
+    widgets::Paragraph,
     Frame,
 };
 
@@ -120,7 +120,7 @@ pub fn ui(f: &mut Frame, app: &App) {
 fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
     let sections = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Length(4), Constraint::Length(3), Constraint::Length(6)])
+        .constraints([Constraint::Length(8), Constraint::Length(3)])
         .margin(1)
         .split(area);
 
@@ -136,6 +136,22 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
     let highlighted_text = format!("selected {} / {}", app.highlighted_words.len(), app.scattered_words.len());
 
     let scatters_text = vec![
+        Line::from(vec![
+            Span::styled("↑/↓", app.styling.text_style),
+            Span::styled(" - density", app.styling.text_style),
+        ]),
+        Line::from(vec![
+            Span::styled("←/→", app.styling.text_style),
+            Span::styled(" - highlight", app.styling.text_style),
+        ]),
+        Line::from(vec![
+            Span::styled("r", app.styling.text_style),
+            Span::styled(" - reroll", app.styling.text_style),
+        ]),
+        Line::from(vec![
+            Span::styled("v", app.styling.text_style),
+            Span::styled(" - view", app.styling.text_style),
+        ]),
         Line::from(Span::styled(count_text, app.styling.text_style)),
         Line::from(Span::styled(highlighted_text, app.styling.text_style)),
     ];
@@ -175,40 +191,6 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
         .alignment(Alignment::Left);
 
     f.render_widget(density, sections[1]);
-
-    let mut controls_block = widget_block(app.styling.border_type)
-        .border_style(app.styling.border_style)
-        .title_top(Line::from(Span::styled(" Controls ", app.styling.text_style)));
-
-    if app.styling.use_background_fill {
-        controls_block = controls_block.style(app.styling.text_style);
-    }
-
-    let controls_text = vec![
-        Line::from(vec![
-            Span::styled("↑/↓", app.styling.text_style),
-            Span::styled(" - density", app.styling.text_style),
-        ]),
-        Line::from(vec![
-            Span::styled("←/→", app.styling.text_style),
-            Span::styled(" - highlight", app.styling.text_style),
-        ]),
-        Line::from(vec![
-            Span::styled("r", app.styling.text_style),
-            Span::styled(" - reroll", app.styling.text_style),
-        ]),
-        Line::from(vec![
-            Span::styled("v", app.styling.text_style),
-            Span::styled(" - view", app.styling.text_style),
-        ]),
-    ];
-
-    let controls = Paragraph::new(controls_text)
-        .block(controls_block)
-        .alignment(Alignment::Left)
-        .wrap(Wrap { trim: true });
-
-    f.render_widget(controls, sections[2]);
 }
 
 fn render_canvas(f: &mut Frame, area: Rect, app: &App) {
