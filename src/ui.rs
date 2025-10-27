@@ -16,6 +16,7 @@ pub struct App {
     pub highlighted_words: Vec<usize>,  // Track all highlighted words
     pub density: f32,  // Density multiplier for word generation (0.1 to 6.0)
     pub use_dimmed_current: bool,  // If true, current selection uses visited color instead of bright color
+    pub fullscreen_mode: bool,  
 }
 
 impl App {
@@ -32,6 +33,7 @@ impl App {
             highlighted_words: vec![0],  // Start with first word highlighted
             density: 1.0,  // Start at default density
             use_dimmed_current: false,  // Start with bright current selection
+            fullscreen_mode: false,  
         }
     }
 
@@ -100,13 +102,19 @@ pub fn ui(f: &mut Frame, app: &App) {
         f.render_widget(background, frame_area);
     }
 
-    let main_layout = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(25), Constraint::Percentage(75)])
-        .split(frame_area);
+    if app.fullscreen_mode {
+        // Fullscreen mode: canvas takes entire screen
+        render_canvas(f, frame_area, app);
+    } else {
+        // Normal mode: sidebar + canvas layout
+        let main_layout = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Percentage(25), Constraint::Percentage(75)])
+            .split(frame_area);
 
-    render_sidebar(f, main_layout[0], app);
-    render_canvas(f, main_layout[1], app);
+        render_sidebar(f, main_layout[0], app);
+        render_canvas(f, main_layout[1], app);
+    }
 }
 
 fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {

@@ -223,8 +223,11 @@ fn run_app<B: ratatui::backend::Backend>(
                     KeyCode::Char('q') | KeyCode::Char('Q') => return Ok(()),
                     KeyCode::Char('r') | KeyCode::Char('R') => {
                         let size = terminal.size()?;
-                        // Calculate actual canvas area (75% width, accounting for borders)
-                        let canvas_width = (size.width * 75 / 100).saturating_sub(2);
+                        let canvas_width = if app.fullscreen_mode {
+                            size.width.saturating_sub(2)
+                        } else {
+                            (size.width * 75 / 100).saturating_sub(2)
+                        };
                         let canvas_height = size.height.saturating_sub(2);
                         let new_scattered = generator.generate_with_density(canvas_width, canvas_height, app.density);
                         app.update_words(new_scattered);
@@ -247,6 +250,9 @@ fn run_app<B: ratatui::backend::Backend>(
                     }
                     KeyCode::Char(' ') => {
                         app.toggle_current_highlight();
+                    }
+                    KeyCode::Char('v') | KeyCode::Char('V') => {
+                        app.fullscreen_mode = !app.fullscreen_mode;
                     }
                     _ => {}
                 }
