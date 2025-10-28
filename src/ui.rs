@@ -116,7 +116,7 @@ pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
     let content_width = scatters_width.max(density_width).max(controls_width);
 
     // Add padding for borders (2) and internal padding (2) and a bit extra (2)
-    (content_width as u16 + 6).min(80) // Cap at 80 to avoid overly wide sidebars
+    (content_width as u16 + 6).min(20) // Cap at 80 to avoid overly wide sidebars
 }
 
 pub fn ui(f: &mut Frame, app: &App) {
