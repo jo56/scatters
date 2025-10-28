@@ -1,7 +1,7 @@
 use rand::seq::SliceRandom;
 use rand::Rng;
 
-#[derive(Clone)]
+
 pub struct ScatteredWord {
     pub word: String,
     pub x: u16,
@@ -28,7 +28,7 @@ impl ScattersGenerator {
         let base_count = base_count; // Minimum 20 words
 
         // Randomize between 70% to 130% of base count for variety
-        let min_count = (base_count * 70 / 100);
+        let min_count = base_count * 70 / 100;
         let max_count = (base_count * 130 / 100).min(self.word_pool.len());
 
         let count = if min_count < max_count {
