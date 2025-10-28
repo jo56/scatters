@@ -1,7 +1,6 @@
 use rand::seq::SliceRandom;
 use rand::Rng;
 
-
 pub struct ScatteredWord {
     pub word: String,
     pub x: u16,
@@ -25,7 +24,6 @@ impl ScattersGenerator {
         // Add randomization so each reroll uses a different count
         let canvas_area = (width as usize).saturating_mul(height as usize);
         let base_count = ((canvas_area as f32 / 40.0) * density) as usize;
-        let base_count = base_count; // Minimum 20 words
 
         // Randomize between 70% to 130% of base count for variety
         let min_count = base_count * 70 / 100;

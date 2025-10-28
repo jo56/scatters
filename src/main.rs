@@ -231,7 +231,7 @@ fn run_app<B: ratatui::backend::Backend>(
                         let canvas_width = if app.fullscreen_mode {
                             size.width.saturating_sub(2)
                         } else {
-                            let sidebar_width = ui::calculate_sidebar_width_for_app(&app);
+                            let sidebar_width = ui::calculate_sidebar_width_for_app(app);
                             size.width.saturating_sub(sidebar_width).saturating_sub(2)
                         };
                         let canvas_height = size.height.saturating_sub(2);
