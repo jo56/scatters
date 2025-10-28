@@ -25,10 +25,10 @@ impl ScattersGenerator {
         // Add randomization so each reroll uses a different count
         let canvas_area = (width as usize).saturating_mul(height as usize);
         let base_count = ((canvas_area as f32 / 40.0) * density) as usize;
-        let base_count = base_count.max(20); // Minimum 20 words
+        let base_count = base_count; // Minimum 20 words
 
         // Randomize between 70% to 130% of base count for variety
-        let min_count = (base_count * 70 / 100).max(20);
+        let min_count = (base_count * 70 / 100);
         let max_count = (base_count * 130 / 100).min(self.word_pool.len());
 
         let count = if min_count < max_count {
