@@ -19,12 +19,13 @@ impl AppStyling {
     pub fn from_theme(theme: &str) -> Result<Self, String> {
         match theme.to_lowercase().as_str() {
             "monochrome" => Ok(Self::monochrome_theme()),
+            "lightmono" => Ok(Self::lightmono_theme()),
             "softmono" => Ok(Self::softmono_theme()),
             "nord" => Ok(Self::nord_theme()),
             "gruvbox" => Ok(Self::gruvbox_theme()),
             "rosepine" => Ok(Self::rosepine_theme()),
             _ => Err(format!(
-                "Invalid theme '{}'. Valid themes: monochrome, softmono, nord, gruvbox, rosepine",
+                "Invalid theme '{}'. Valid themes: monochrome, lightmono, softmono, nord, gruvbox, rosepine",
                 theme
             )),
         }
@@ -109,6 +110,23 @@ impl AppStyling {
             density_bar_style: Style::default().fg(Color::Black).bg(Self::hex_color(SOFT_WHITE)),  // Same as border
             border_type: BorderType::Plain,
             use_background_fill: true,  // Enable background fill for seamless soft white background
+        }
+    }
+
+    fn lightmono_theme() -> Self {
+        const MONO_COLOR: &str = "#3c3836"; 
+
+        Self {
+            border_style: Self::hex_style(MONO_COLOR),
+            highlighted_border_style: Self::hex_style(MONO_COLOR),
+            text_style: Self::hex_style(MONO_COLOR),
+            selected_text_style: Self::hex_style(MONO_COLOR)
+                .bg(Self::hex_color(MONO_COLOR)),  
+            current_selected_style: Self::hex_style(MONO_COLOR)
+                .bg(Self::hex_color(MONO_COLOR)),  
+            density_bar_style: Self::hex_style(MONO_COLOR),  
+            border_type: BorderType::Plain,
+            use_background_fill: false,  
         }
     }
 

@@ -47,6 +47,7 @@ Scatters remembers the last directory you used, so after the first run, you can 
 ### Available Themes
 
 - `monochrome` - Black and white (default)
+- `lightmono` - Black on white designed for bright terminals
 - `softmono` - Black on pink-white (#FCF6F8)
 - `nord` - Cool arctic palette ([Nord](https://www.nordtheme.com/) by Arctic Ice Studio)
 - `gruvbox` - Retro warm colors ([Gruvbox](https://github.com/morhetz/gruvbox) by morhetz)
