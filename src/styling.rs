@@ -20,13 +20,14 @@ impl AppStyling {
         match theme.to_lowercase().as_str() {
             "monochrome" => Ok(Self::monochrome_theme()),
             "lightmono" => Ok(Self::lightmono_theme()),
+            "redmono" => Ok(Self::redmono_theme()),
             "softmono" => Ok(Self::softmono_theme()),
             "nord" => Ok(Self::nord_theme()),
             "nord-light" => Ok(Self::nord_light_theme()),
             "gruvbox" => Ok(Self::gruvbox_theme()),
             "rosepine" => Ok(Self::rosepine_theme()),
             _ => Err(format!(
-                "Invalid theme '{}'. Valid themes: monochrome, lightmono, softmono, nord, nord-light, gruvbox, rosepine",
+                "Invalid theme '{}'. Valid themes: monochrome, lightmono, redmono, softmono, nord, nord-light, gruvbox, rosepine",
                 theme
             )),
         }
@@ -97,6 +98,24 @@ impl AppStyling {
         }
     }
 
+   
+    fn redmono_theme() -> Self {
+        const BLACK: &str = "#3c3836";
+        const RED: &str = "#9d0006"; 
+        
+        Self {
+            border_style: Self::hex_style(RED),
+            highlighted_border_style: Self::hex_style(RED),
+            text_style: Self::hex_style(BLACK),
+            selected_text_style: Self::hex_style(RED),  
+            current_selected_style: Self::hex_style(BLACK)
+                .bg(Self::hex_color(RED)),  
+            density_bar_style: Self::hex_style(BLACK),  
+            border_type: BorderType::Plain,
+            use_background_fill: false,  
+        }
+    }
+
     // Monochrome theme
     fn monochrome_theme() -> Self {
         Self {
@@ -115,9 +134,8 @@ impl AppStyling {
         }
     }
 
-    // Soft Monochrome theme - Like monochrome but with soft pink-white (#FCF6F8)
     fn softmono_theme() -> Self {
-        const SOFT_WHITE: &str = "#FCF6F8"; // Soft pink-white background
+        const SOFT_WHITE: &str = "#FCF6F8"; 
 
         Self {
             border_style: Style::default().fg(Color::Black).bg(Self::hex_color(SOFT_WHITE)),
