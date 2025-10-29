@@ -1,10 +1,9 @@
-use crate::drawing_utils::widget_block;
 use crate::scatters::ScatteredWord;
 use crate::styling::AppStyling;
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     text::{Line, Span},
-    widgets::{Paragraph, Wrap},
+    widgets::{Paragraph, Wrap, Block, BorderType, Borders},
     Frame,
 };
 
@@ -117,6 +116,12 @@ pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
 
     // Add padding for borders (2) and internal padding (2) and a bit extra (2)
     (content_width as u16 + 6).min(20) // Cap sidebar width to 20 
+}
+
+fn widget_block(border_type: BorderType) -> Block<'static> {
+    Block::default()
+        .border_type(border_type)
+        .borders(Borders::all())
 }
 
 pub fn ui(f: &mut Frame, app: &App) {

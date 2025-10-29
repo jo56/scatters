@@ -1,4 +1,3 @@
-mod drawing_utils;
 mod parser;
 mod scatters;
 mod styling;
