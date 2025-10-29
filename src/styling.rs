@@ -109,7 +109,7 @@ impl AppStyling {
             text_style: Self::hex_style(BLACK),
             selected_text_style: Self::hex_style(RED),  
             current_selected_style: Self::hex_style(BLACK)
-                .bg(Self::hex_color(RED)),  
+                .bg(Self::hex_color(BLACK)),  
             density_bar_style: Self::hex_style(BLACK),  
             border_type: BorderType::Plain,
             use_background_fill: false,  
