@@ -49,7 +49,7 @@ Scatters remembers the last directory you used, so after the first run, you can 
 - `monochrome` - Black and white (default)
 - `softmono` - Black on pink-white (#FCF6F8)
 - `lightmono` - Black designed for lighter terminals
-- `redmono` - Black and red initially designed for lighter terminals but works with dark ones too
+- `redmono` - Black and red initially designed for lighter terminals (works with dark ones too)
 - `nord` - Cool arctic palette ([Nord](https://www.nordtheme.com/) by Arctic Ice Studio)
 - `nord-bg` - Nord theme with background fill (useful for lighter terminals)
 - `gruvbox` - Retro warm colors ([Gruvbox](https://github.com/morhetz/gruvbox) by morhetz)
