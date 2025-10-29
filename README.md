@@ -54,6 +54,8 @@ Scatters remembers the last directory you used, so after the first run, you can 
 - `nord-bg` - Nord theme with background fill (useful for lighter terminals)
 - `gruvbox` - Retro warm colors ([Gruvbox](https://github.com/morhetz/gruvbox) by morhetz)
 - `rosepine` - Soft purple and pink tones ([Rosé Pine](https://rosepinetheme.com/))
+- `goldgreen-light` - Light gold and green styling
+- `goldgreen-dark` - Dark gold and green styling
 
 ### Controls
 

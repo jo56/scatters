@@ -26,8 +26,10 @@ impl AppStyling {
             "nord-bg" => Ok(Self::nord_bg_theme()),
             "gruvbox" => Ok(Self::gruvbox_theme()),
             "rosepine" => Ok(Self::rosepine_theme()),
+            "goldgreen-light" => Ok(Self::goldgreen_light_theme()),
+            "goldgreen-dark" => Ok(Self::goldgreen_dark_theme()),
             _ => Err(format!(
-                "Invalid theme '{}'. Valid themes: monochrome, lightmono, redmono, softmono, nord, nord-bg, gruvbox, rosepine",
+                "Invalid theme '{}'. Valid themes: monochrome, lightmono, redmono, softmono, nord, nord-bg, gruvbox, rosepine, goldgreen-light, goldgreen-dark",
                 theme
             )),
         }
@@ -190,6 +192,38 @@ impl AppStyling {
             density_bar_style: Self::hex_style(ROSE_LOVE).bg(Self::hex_color(ROSE_BG)),  // Rose pink like highlighted text
             border_type: BorderType::Plain,
             use_background_fill: true,  // Enable background fill for rose pine theme
+        }
+    }
+
+    fn goldgreen_dark_theme() -> Self {
+        const GOLD: &str = "#C78A14"; 
+        const GREEN: &str = "#0F4620";
+        
+        Self {
+            border_style: Self::hex_style(GOLD).bg(Self::hex_color(GREEN)),
+            highlighted_border_style: Self::hex_style(GOLD).bg(Self::hex_color(GREEN)),
+            text_style: Self::hex_style(GOLD).bg(Self::hex_color(GREEN)),
+            selected_text_style: Self::hex_style(GREEN).bg(Self::hex_color(GOLD)),  
+            current_selected_style: Self::hex_style(GREEN).bg(Self::hex_color(GOLD)),  
+            density_bar_style: Self::hex_style(GOLD).bg(Self::hex_color(GREEN)),  
+            border_type: BorderType::Plain,
+            use_background_fill: true,  
+        }
+    }
+
+    fn goldgreen_light_theme() -> Self {
+        const GOLD: &str = "#C78A14"; 
+        const GREEN: &str = "#0F4620";
+        
+        Self {
+            border_style: Self::hex_style(GREEN).bg(Self::hex_color(GOLD)),
+            highlighted_border_style: Self::hex_style(GREEN).bg(Self::hex_color(GOLD)),
+            text_style: Self::hex_style(GREEN).bg(Self::hex_color(GOLD)),
+            selected_text_style: Self::hex_style(GOLD).bg(Self::hex_color(GREEN)),  
+            current_selected_style: Self::hex_style(GOLD).bg(Self::hex_color(GREEN)),  
+            density_bar_style: Self::hex_style(GREEN).bg(Self::hex_color(GOLD)),  
+            border_type: BorderType::Plain,
+            use_background_fill: true,  
         }
     }
 
