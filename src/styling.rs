@@ -22,10 +22,11 @@ impl AppStyling {
             "lightmono" => Ok(Self::lightmono_theme()),
             "softmono" => Ok(Self::softmono_theme()),
             "nord" => Ok(Self::nord_theme()),
+            "nord-light" => Ok(Self::nord_light_theme()),
             "gruvbox" => Ok(Self::gruvbox_theme()),
             "rosepine" => Ok(Self::rosepine_theme()),
             _ => Err(format!(
-                "Invalid theme '{}'. Valid themes: monochrome, lightmono, softmono, nord, gruvbox, rosepine",
+                "Invalid theme '{}'. Valid themes: monochrome, lightmono, softmono, nord, nord-light, gruvbox, rosepine",
                 theme
             )),
         }
@@ -50,6 +51,27 @@ impl AppStyling {
             density_bar_style: Self::hex_style(NORD_FROST_BLUE),  // Same as border
             border_type: BorderType::Plain,
             use_background_fill: false,  // No background fill for nord theme
+        }
+    }
+
+    fn nord_light_theme() -> Self {
+        const NORD_BG: &str = "#2e3440"; // Nord dark background (Polar Night)
+        const NORD_FG: &str = "#e5e9f0"; // Nord light foreground (Snow Storm)
+        const NORD_FROST_BLUE: &str = "#88c0d0"; // Nord Frost bright blue
+        const NORD_FROST_DARK: &str = "#5e81ac"; // Nord Frost dark blue
+        const NORD_FROST_CYAN: &str = "#8fbcbb"; // Nord Frost cyan
+
+        Self {
+            border_style: Self::hex_style(NORD_FROST_BLUE).bg(Self::hex_color(NORD_BG)),  // Bright blue for sidebar
+            highlighted_border_style: Self::hex_style(NORD_FROST_DARK).bg(Self::hex_color(NORD_BG)),  // Dark blue for canvas
+            text_style: Self::hex_style(NORD_FG).bg(Self::hex_color(NORD_BG)),
+            selected_text_style: Self::hex_style(NORD_BG)
+                .bg(Self::hex_color(NORD_FROST_BLUE)),  // Dark on bright blue
+            current_selected_style: Self::hex_style(NORD_BG)
+                .bg(Self::hex_color(NORD_FROST_CYAN)),  // Dark on cyan for current selection
+            density_bar_style: Self::hex_style(NORD_FROST_BLUE).bg(Self::hex_color(NORD_BG)),  // Same as border
+            border_type: BorderType::Plain,
+            use_background_fill: true,  // No background fill for nord theme
         }
     }
 
