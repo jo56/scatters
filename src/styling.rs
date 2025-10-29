@@ -23,11 +23,11 @@ impl AppStyling {
             "redmono" => Ok(Self::redmono_theme()),
             "softmono" => Ok(Self::softmono_theme()),
             "nord" => Ok(Self::nord_theme()),
-            "nord-light" => Ok(Self::nord_light_theme()),
+            "nord-bg" => Ok(Self::nord_bg_theme()),
             "gruvbox" => Ok(Self::gruvbox_theme()),
             "rosepine" => Ok(Self::rosepine_theme()),
             _ => Err(format!(
-                "Invalid theme '{}'. Valid themes: monochrome, lightmono, redmono, softmono, nord, nord-light, gruvbox, rosepine",
+                "Invalid theme '{}'. Valid themes: monochrome, lightmono, redmono, softmono, nord, nord-bg, gruvbox, rosepine",
                 theme
             )),
         }
@@ -55,7 +55,7 @@ impl AppStyling {
         }
     }
 
-    fn nord_light_theme() -> Self {
+    fn nord_bg_theme() -> Self {
         const NORD_BG: &str = "#2e3440"; // Nord dark background (Polar Night)
         const NORD_FG: &str = "#e5e9f0"; // Nord light foreground (Snow Storm)
         const NORD_FROST_BLUE: &str = "#88c0d0"; // Nord Frost bright blue

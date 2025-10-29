@@ -51,7 +51,7 @@ Scatters remembers the last directory you used, so after the first run, you can 
 - `redmono` - Black and Red designed for lighter terminals
 - `softmono` - Black on pink-white (#FCF6F8)
 - `nord` - Cool arctic palette ([Nord](https://www.nordtheme.com/) by Arctic Ice Studio)
-- `nord-light` - Variation of nord designed for lighter terminals
+- `nord-bg` - Nord theme with background fill (useful for lighter terminals)
 - `gruvbox` - Retro warm colors ([Gruvbox](https://github.com/morhetz/gruvbox) by morhetz)
 - `rosepine` - Soft purple and pink tones ([Rosé Pine](https://rosepinetheme.com/))
 
