@@ -1,7 +1,7 @@
 # Scatters
 
   <div align="center">
-          <img src="assets/4-screenshot-gruvbox-7.png" alt="redmono preview">
+          <img src="assets/4-screenshot-gruvbox-8.png" alt="redmono preview">
       <br>
           <i>Example run with gruvbox theme</i>
     <br>
