@@ -43,6 +43,8 @@ fn parse_markdown(path: &Path) -> Result<Vec<String>, Box<dyn std::error::Error>
     Ok(extract_words(&text_content))
 }
 
+//TODO: Update this when epub publishes latest git changes to crates.io
+#[allow(deprecated)]
 fn parse_epub(path: &Path) -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let doc = epub::doc::EpubDoc::new(path)?;
     let mut all_text = String::new();
