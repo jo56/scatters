@@ -202,12 +202,37 @@ fn truncate_path_if_needed(lines: Vec<String>, max_lines: usize) -> Vec<String> 
     if lines.len() <= max_lines {
         lines
     } else {
-        // Show first line with "..." and last lines to fit within max_lines
-        let mut result = vec!["...".to_string()];
-        let remaining_lines = max_lines - 1;
-        result.extend(lines[lines.len() - remaining_lines..].iter().cloned());
-        result
+        // Special case: if only 1 line available, show the last line 
+        // rather than just "..."
+        if max_lines == 1 {
+            vec![lines.last().unwrap().clone()]
+        } else {
+            let mut result = vec!["...".to_string()];
+            let remaining_lines = max_lines - 1;
+            result.extend(lines[lines.len() - remaining_lines..].iter().cloned());
+            result
+        }
     }
+}
+
+/// Wraps a single text line at character boundaries if it exceeds max_width
+fn wrap_text_line(text: &str, max_width: usize) -> Vec<String> {
+    if text.len() <= max_width {
+        return vec![text.to_string()];
+    }
+
+    let mut lines = Vec::new();
+    let mut current_pos = 0;
+
+    while current_pos < text.len() {
+        let remaining = text.len() - current_pos;
+        let chunk_size = remaining.min(max_width);
+        let chunk = &text[current_pos..current_pos + chunk_size];
+        lines.push(chunk.to_string());
+        current_pos += chunk_size;
+    }
+
+    lines
 }
 
 pub fn ui(f: &mut Frame, app: &App) {
@@ -243,9 +268,35 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
     // Conditionally add info box section if a word is selected
     let has_selection = app.selected_word_index.is_some();
 
+    let available_width = area.width.saturating_sub(4) as usize; // Subtract borders and padding
+    let max_width = available_width.max(10); // Minimum width of 10 chars
+
+    // Calculate info box height dynamically if a word is selected
+    let info_box_height = if has_selection {
+        if let Some(index) = app.selected_word_index {
+            if let Some(scattered_word) = app.scattered_words.get(index) {
+                let word_text = format!("Word: {}", scattered_word.word);
+                let file_text = format!("File: {}", scattered_word.source_file);
+
+                // Wrap both lines
+                let word_wrapped = wrap_text_line(&word_text, max_width);
+                let file_wrapped = wrap_text_line(&file_text, max_width);
+                let total_lines = word_wrapped.len() + file_wrapped.len();
+
+                (total_lines + 2) as u16 // Add 2 for borders
+            } else {
+                4 // Default height
+            }
+        } else {
+            4 // Default height
+        }
+    } else {
+        0 // Not used when no selection
+    };
+
     // Calculate fixed sections height first to ensure they have priority
     let fixed_height = if has_selection {
-        4 + 3 + 7 + 4  // Scatters + Density + Controls + Info
+        4 + 3 + 7 + info_box_height  // Scatters + Density + Controls + Info (dynamic)
     } else {
         4 + 3 + 7  // Scatters + Density + Controls
     };
@@ -253,8 +304,6 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
     // Calculate path box height dynamically based on wrapped content
     // But cap it to remaining available space
     let path_str = app.directory.display().to_string();
-    let available_width = area.width.saturating_sub(4) as usize; // Subtract borders and padding
-    let max_width = available_width.max(10); // Minimum width of 10 chars
     let wrapped_path_lines = wrap_path_smart(&path_str, max_width);
     let ideal_path_content_lines = wrapped_path_lines.len().max(1);
     let ideal_path_box_height = (ideal_path_content_lines + 2) as u16; // Add 2 for borders
@@ -267,21 +316,21 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
         Layout::default()
             .direction(Direction::Vertical)
             .constraints([
-                Constraint::Length(4),              // Scatters - fixed
-                Constraint::Length(3),              // Density - fixed
-                Constraint::Length(7),              // Controls - fixed (priority)
-                Constraint::Length(4),              // Info - fixed (when visible)
-                Constraint::Length(path_box_height),  // Path - sized to content, capped to available space
+                Constraint::Length(4),                  // Scatters - fixed
+                Constraint::Length(3),                  // Density - fixed
+                Constraint::Length(7),                  // Controls - fixed (priority)
+                Constraint::Length(info_box_height),    // Info - dynamically sized to wrapped content
+                Constraint::Length(path_box_height),    // Path - sized to content, capped to available space
             ])
             .split(area)
     } else {
         Layout::default()
             .direction(Direction::Vertical)
             .constraints([
-                Constraint::Length(4),              // Scatters - fixed
-                Constraint::Length(3),              // Density - fixed
-                Constraint::Length(7),              // Controls - fixed (priority)
-                Constraint::Length(path_box_height),  // Path - sized to content, capped to available space
+                Constraint::Length(4),                  // Scatters - fixed
+                Constraint::Length(3),                  // Density - fixed
+                Constraint::Length(7),                  // Controls - fixed (priority)
+                Constraint::Length(path_box_height),    // Path - sized to content, capped to available space
             ])
             .split(area)
     };
@@ -436,10 +485,21 @@ fn render_info_box(f: &mut Frame, area: Rect, app: &App) {
         ("Word: (none)".to_string(), "File: (none)".to_string())
     };
 
-    let info_text = vec![
-        Line::from(Span::styled(word_text, app.styling.text_style)),
-        Line::from(Span::styled(file_text, app.styling.text_style)),
-    ];
+    // Wrap both text lines
+    let available_width = area.width.saturating_sub(4) as usize; // Subtract borders and padding
+    let max_width = available_width.max(10); // Minimum width of 10 chars
+
+    let word_wrapped = wrap_text_line(&word_text, max_width);
+    let file_wrapped = wrap_text_line(&file_text, max_width);
+
+    // Combine all wrapped lines into the display text
+    let mut info_text: Vec<Line> = Vec::new();
+    for line in word_wrapped {
+        info_text.push(Line::from(Span::styled(line, app.styling.text_style)));
+    }
+    for line in file_wrapped {
+        info_text.push(Line::from(Span::styled(line, app.styling.text_style)));
+    }
 
     let info = Paragraph::new(info_text)
         .block(info_block)
