@@ -133,7 +133,7 @@ pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
     // Use a conservative estimate for max_width (content width minus borders/padding)
     let estimated_max_width = 14; // 20 (sidebar cap) - 6 (padding) = 14
     let wrapped_path_lines = wrap_path_smart(&path_str, estimated_max_width);
-    let truncated_path_lines = truncate_path_if_needed(wrapped_path_lines, 3);
+    let truncated_path_lines = truncate_path_if_needed(wrapped_path_lines, 3, estimated_max_width);
     let path_width = truncated_path_lines.iter().map(|s| s.len()).max().unwrap_or(0);
 
     // Take the maximum of all sections
@@ -198,18 +198,39 @@ fn wrap_path_smart(path_str: &str, max_width: usize) -> Vec<String> {
 }
 
 /// Truncates wrapped path lines if they exceed max_lines by adding ellipsis
-fn truncate_path_if_needed(lines: Vec<String>, max_lines: usize) -> Vec<String> {
+fn truncate_path_if_needed(lines: Vec<String>, max_lines: usize, max_width: usize) -> Vec<String> {
     if lines.len() <= max_lines {
         lines
     } else {
-        // Special case: if only 1 line available, show the last line 
+        // Special case: if only 1 line available, show the last line
         // rather than just "..."
         if max_lines == 1 {
             vec![lines.last().unwrap().clone()]
         } else {
-            let mut result = vec!["...".to_string()];
-            let remaining_lines = max_lines - 1;
-            result.extend(lines[lines.len() - remaining_lines..].iter().cloned());
+            // Take the last max_lines lines
+            let start_index = lines.len() - max_lines;
+            let remaining_lines: Vec<String> = lines[start_index..].to_vec();
+
+            // Combine "..." with the first remaining line
+            let first_line = &remaining_lines[0];
+            let combined_first = format!("...{}", first_line);
+
+            // If combined line exceeds max_width, truncate it intelligently
+            let final_first = if combined_first.len() > max_width {
+                if max_width > 3 {
+                    // Keep "..." and truncate the directory part
+                    let available_for_dir = max_width - 3;
+                    format!("...{}", &first_line[..available_for_dir.min(first_line.len())])
+                } else {
+                    "...".to_string()
+                }
+            } else {
+                combined_first
+            };
+
+            // Build result with modified first line and remaining lines
+            let mut result = vec![final_first];
+            result.extend(remaining_lines[1..].iter().cloned());
             result
         }
     }
@@ -530,7 +551,7 @@ fn render_path_box(f: &mut Frame, area: Rect, app: &App) {
     let wrapped_lines = wrap_path_smart(&path_str, max_width);
 
     // Truncate if needed based on dynamic max_lines
-    let final_lines = truncate_path_if_needed(wrapped_lines, max_lines);
+    let final_lines = truncate_path_if_needed(wrapped_lines, max_lines, max_width);
 
     // Convert to Line objects
     let path_text: Vec<Line> = final_lines
