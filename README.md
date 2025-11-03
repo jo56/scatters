@@ -1,9 +1,9 @@
 # Scatters
 
   <div align="center">
-          <img src="assets/screenshot-redmono-wterm.png" alt="redmono preview">
+          <img src="assets/4-screenshot-gruvbox-7.png" alt="redmono preview">
       <br>
-          <i>Example run with redmono theme using <a href="https://wezterm.org">WezTerm</a> and the <a href="https://wezterm.org/colorschemes/y/index.html">Yousai</a> color scheme</i>
+          <i>Example run with gruvbox theme</i>
     <br>
   </div>
 
