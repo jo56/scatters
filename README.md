@@ -1,4 +1,4 @@
-# Scatters
+# Text Scatters
 
   <div align="center">
           <img src="assets/screenshot-gruvbox-11.png" alt="gruvbox preview">
@@ -9,7 +9,7 @@
 
 <br>
 
-Scatters takes your text files (`.txt`, `.md`, `.epub`) and creates randomized word collages inspired by the cut-up technique. Navigate through scattered words with an interactive terminal UI.
+Text Scatters takes your text files (`.txt`, `.md`, `.epub`) and creates randomized word collages inspired by the cut-up technique. Navigate through scattered words with an interactive terminal UI.
 
 ![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=flat&logo=rust&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
@@ -35,17 +35,17 @@ cargo install --path .
 
 ```bash
 # Basic usage
-scatters /path/to/text/files
+text-scatters /path/to/text/files
 
 # Use the last path (after running once)
-scatters
+text-scatters
 
 # With a specific theme
-scatters /path/to/text/files --theme rosepine
-scatters -t nord  # Uses last path with nord theme
+text-scatters /path/to/text/files --theme rosepine
+text-scatters -t nord  # Uses last path with nord theme
 ```
 
-Scatters remembers the last directory you used, so after the first run, you can simply type `scatters` without a path argument. The last-used path is saved in your system's config directory (`~/.config/scatters/` on Linux/macOS, `%APPDATA%\scatters\` on Windows).
+Text Scatters remembers the last directory you used, so after the first run, you can simply type `text-scatters` without a path argument. The last-used path is saved in your system's config directory (`~/.config/text-scatters/` on Linux/macOS, `%APPDATA%\text-scatters\` on Windows).
 
 ### Available Themes
 
@@ -71,7 +71,7 @@ Scatters remembers the last directory you used, so after the first run, you can 
 
 ## How It Works
 
-1. **Parsing**: Scatters reads all text files from the specified directory
+1. **Parsing**: Text Scatters reads all text files from the specified directory
 2. **Filtering**: Removes common stop words and keeps words 3+ characters long
 3. **Generation**: Randomly places words across the terminal canvas
 4. **Interaction**: Navigate and explore the scattered text with keyboard controls

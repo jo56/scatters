@@ -16,7 +16,7 @@ use std::io;
 use std::path::{Path, PathBuf};
 
 #[derive(ClapParser, Debug)]
-#[command(name = "scatters")]
+#[command(name = "text-scatters")]
 #[command(about = "A cut-up poetry generator from text files", long_about = None)]
 struct Args {
     #[arg(help = "Directory containing text files to parse (optional - uses last path if omitted)")]
@@ -32,11 +32,11 @@ struct Args {
     theme: String,
 }
 
-/// Get the config directory for scatters
+/// Get the config directory for text-scatters
 fn get_config_dir() -> Result<PathBuf, Box<dyn std::error::Error>> {
     let config_dir = dirs::config_dir()
         .ok_or("Could not determine config directory")?
-        .join("scatters");
+        .join("text-scatters");
 
     // Create the config directory if it doesn't exist
     fs::create_dir_all(&config_dir)?;

@@ -392,7 +392,7 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
 
     let mut scatters_block = widget_block(app.styling.border_type)
         .border_style(app.styling.border_style)
-        .title_top(Line::from(Span::styled(" Scatters ", app.styling.text_style)));
+        .title_top(Line::from(Span::styled(" Text Scatters ", app.styling.text_style)));
 
     if app.styling.use_background_fill {
         scatters_block = scatters_block.style(app.styling.text_style);
