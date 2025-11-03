@@ -17,7 +17,7 @@ pub struct App {
     pub density: f32,  // Density multiplier for word generation (0.1 to 6.0)
     pub use_dimmed_current: bool,  // If true, current selection uses visited color instead of bright color
     pub fullscreen_mode: bool,
-    pub base_directory: PathBuf,  // Base directory for computing relative paths
+    pub directory: PathBuf,  // Current directory being used
 }
 
 impl App {
@@ -25,7 +25,7 @@ impl App {
         scattered_words: Vec<ScatteredWord>,
         word_count: usize,
         styling: AppStyling,
-        base_directory: PathBuf,
+        directory: PathBuf,
     ) -> Self {
         Self {
             scattered_words,
@@ -36,7 +36,7 @@ impl App {
             density: 1.0,  // Start at default density
             use_dimmed_current: false,  // Start with bright current selection
             fullscreen_mode: false,
-            base_directory,
+            directory,
         }
     }
 
@@ -128,8 +128,16 @@ pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
         0
     };
 
+    // Path section: calculate width based on wrapped path lines
+    let path_str = app.directory.display().to_string();
+    // Use a conservative estimate for max_width (content width minus borders/padding)
+    let estimated_max_width = 14; // 20 (sidebar cap) - 6 (padding) = 14
+    let wrapped_path_lines = wrap_path_smart(&path_str, estimated_max_width);
+    let truncated_path_lines = truncate_path_if_needed(wrapped_path_lines, 3);
+    let path_width = truncated_path_lines.iter().map(|s| s.len()).max().unwrap_or(0);
+
     // Take the maximum of all sections
-    let content_width = scatters_width.max(density_width).max(controls_width).max(info_width);
+    let content_width = scatters_width.max(density_width).max(controls_width).max(info_width).max(path_width);
 
     // Add padding for borders (2) and internal padding (2) and a bit extra (2)
     (content_width as u16 + 6).min(20) // Cap sidebar width to 20
@@ -139,6 +147,67 @@ fn widget_block(border_type: BorderType) -> Block<'static> {
     Block::default()
         .border_type(border_type)
         .borders(Borders::all())
+}
+
+/// Wraps a path string smartly by preferring to break at path separators
+fn wrap_path_smart(path_str: &str, max_width: usize) -> Vec<String> {
+    let mut lines = Vec::new();
+    let mut current_line = String::new();
+
+    // Split by both / and \ to handle cross-platform paths
+    let components: Vec<&str> = path_str.split(|c| c == '/' || c == '\\').collect();
+
+    for (i, component) in components.iter().enumerate() {
+        // Reconstruct the separator (use the original if possible, or default to /)
+        let separator = if i > 0 { "/" } else { "" };
+        let piece = format!("{}{}", separator, component);
+
+        // Check if adding this piece would exceed max width
+        if !current_line.is_empty() && current_line.len() + piece.len() > max_width {
+            // If the piece itself is longer than max_width, we need character-level wrapping
+            if piece.len() > max_width {
+                // Flush current line if not empty
+                if !current_line.is_empty() {
+                    lines.push(current_line.clone());
+                    current_line.clear();
+                }
+
+                // Break the long piece into chunks
+                let mut remaining = piece.as_str();
+                while remaining.len() > max_width {
+                    lines.push(remaining[..max_width].to_string());
+                    remaining = &remaining[max_width..];
+                }
+                current_line = remaining.to_string();
+            } else {
+                // Start a new line with this piece
+                lines.push(current_line.clone());
+                current_line = piece;
+            }
+        } else {
+            current_line.push_str(&piece);
+        }
+    }
+
+    // Add the last line if not empty
+    if !current_line.is_empty() {
+        lines.push(current_line);
+    }
+
+    lines
+}
+
+/// Truncates wrapped path lines if they exceed max_lines by adding ellipsis
+fn truncate_path_if_needed(lines: Vec<String>, max_lines: usize) -> Vec<String> {
+    if lines.len() <= max_lines {
+        lines
+    } else {
+        // Show first line with "..." and last lines to fit within max_lines
+        let mut result = vec!["...".to_string()];
+        let remaining_lines = max_lines - 1;
+        result.extend(lines[lines.len() - remaining_lines..].iter().cloned());
+        result
+    }
 }
 
 pub fn ui(f: &mut Frame, app: &App) {
@@ -174,40 +243,65 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
     // Conditionally add info box section if a word is selected
     let has_selection = app.selected_word_index.is_some();
 
+    // Calculate fixed sections height first to ensure they have priority
+    let fixed_height = if has_selection {
+        4 + 3 + 7 + 4  // Scatters + Density + Controls + Info
+    } else {
+        4 + 3 + 7  // Scatters + Density + Controls
+    };
+
+    // Calculate path box height dynamically based on wrapped content
+    // But cap it to remaining available space
+    let path_str = app.directory.display().to_string();
+    let available_width = area.width.saturating_sub(4) as usize; // Subtract borders and padding
+    let max_width = available_width.max(10); // Minimum width of 10 chars
+    let wrapped_path_lines = wrap_path_smart(&path_str, max_width);
+    let ideal_path_content_lines = wrapped_path_lines.len().max(1);
+    let ideal_path_box_height = (ideal_path_content_lines + 2) as u16; // Add 2 for borders
+
+    // Cap path height to remaining space (with minimum of 3 lines)
+    let max_path_height = area.height.saturating_sub(fixed_height).max(3);
+    let path_box_height = ideal_path_box_height.min(max_path_height);
+
     let sections = if has_selection {
         Layout::default()
             .direction(Direction::Vertical)
             .constraints([
-                Constraint::Length(4),  // Scatters
-                Constraint::Length(3),  // Density
-                Constraint::Length(7),  // Controls
-                Constraint::Length(4),  // Info (when visible)
+                Constraint::Length(4),              // Scatters - fixed
+                Constraint::Length(3),              // Density - fixed
+                Constraint::Length(7),              // Controls - fixed (priority)
+                Constraint::Length(4),              // Info - fixed (when visible)
+                Constraint::Length(path_box_height),  // Path - sized to content, capped to available space
             ])
             .split(area)
     } else {
         Layout::default()
             .direction(Direction::Vertical)
             .constraints([
-                Constraint::Length(4),  // Scatters
-                Constraint::Length(3),  // Density
-                Constraint::Length(7),  // Controls
+                Constraint::Length(4),              // Scatters - fixed
+                Constraint::Length(3),              // Density - fixed
+                Constraint::Length(7),              // Controls - fixed (priority)
+                Constraint::Length(path_box_height),  // Path - sized to content, capped to available space
             ])
             .split(area)
     };
 
+    // Calculate container area dynamically based on actual section positions
     let container_area = if has_selection {
+        let last_section = &sections[4]; // Path section is last
         Rect {
             x: area.x,
             y: sections[0].y,
             width: area.width,
-            height: sections[0].height + sections[1].height + sections[2].height + sections[3].height,
+            height: (last_section.y + last_section.height).saturating_sub(sections[0].y),
         }
     } else {
+        let last_section = &sections[3]; // Path section is last (no Info section)
         Rect {
             x: area.x,
             y: sections[0].y,
             width: area.width,
-            height: sections[0].height + sections[1].height + sections[2].height,
+            height: (last_section.y + last_section.height).saturating_sub(sections[0].y),
         }
     };
 
@@ -313,6 +407,9 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
     // Render info box if a word is selected
     if has_selection {
         render_info_box(f, sections[3], app);
+        render_path_box(f, sections[4], app);
+    } else {
+        render_path_box(f, sections[3], app);
     }
 }
 
@@ -349,6 +446,44 @@ fn render_info_box(f: &mut Frame, area: Rect, app: &App) {
         .alignment(Alignment::Left);
 
     f.render_widget(info, area);
+}
+
+fn render_path_box(f: &mut Frame, area: Rect, app: &App) {
+    let mut path_block = widget_block(app.styling.border_type)
+        .border_style(app.styling.border_style)
+        .title_top(Line::from(Span::styled(" Path ", app.styling.text_style)));
+
+    if app.styling.use_background_fill {
+        path_block = path_block.style(app.styling.text_style);
+    }
+
+    // Get the path and wrap it smartly
+    let path_str = app.directory.display().to_string();
+    let available_width = area.width.saturating_sub(4) as usize; // Subtract borders and padding
+    let max_width = available_width.max(10); // Minimum width of 10 chars
+
+    // Calculate max lines based on available height
+    let available_height = area.height.saturating_sub(2) as usize; // Subtract top and bottom borders
+    let max_lines = available_height.max(1); // At least 1 line
+
+    // Wrap the path
+    let wrapped_lines = wrap_path_smart(&path_str, max_width);
+
+    // Truncate if needed based on dynamic max_lines
+    let final_lines = truncate_path_if_needed(wrapped_lines, max_lines);
+
+    // Convert to Line objects
+    let path_text: Vec<Line> = final_lines
+        .iter()
+        .map(|line| Line::from(Span::styled(line.clone(), app.styling.text_style)))
+        .collect();
+
+    let path = Paragraph::new(path_text)
+        .block(path_block)
+        .alignment(Alignment::Left)
+        .wrap(Wrap { trim: true });
+
+    f.render_widget(path, area);
 }
 
 fn render_canvas(f: &mut Frame, area: Rect, app: &App) {
