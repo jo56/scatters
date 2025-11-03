@@ -20,14 +20,14 @@ Text Scatters takes your text files (`.txt`, `.md`, `.epub`) and creates randomi
 
 ```bash
 # Install the latest version
-cargo install --git https://github.com/jo56/scatters
+cargo install --git https://github.com/jo56/text-scatters
 
 # Install a specific release
-cargo install --git https://github.com/jo56/scatters --tag v0.1.0
+cargo install --git https://github.com/jo56/text-scatters --tag v0.1.0
 
 # Or clone and build locally
-git clone https://github.com/jo56/scatters.git
-cd scatters
+git clone https://github.com/jo56/text-scatters.git
+cd text-scatters
 cargo install --path .
 ```
 
