@@ -5,7 +5,7 @@ edition = "2021"
 authors = ["jo56"]
 description = "A cut-up technique generator from text and ebook files in the terminal"
 license = "MIT"
-repository = "https://github.com/jo56/scatters"
+repository = "https://github.com/jo56/text-scatters"
 keywords = ["tui", "poetry", "text", "generator", "cut-up"]
 categories = ["command-line-utilities", "text-processing"]
 
