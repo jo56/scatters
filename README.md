@@ -12,11 +12,16 @@
 Text Scatters takes your text files (`.txt`, `.md`, `.epub`) and creates randomized word collages inspired by the cut-up technique. Navigate through scattered words with an interactive terminal UI.
 
 ![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=flat&logo=rust&logoColor=white)
+[![Crates.io](https://img.shields.io/crates/v/text-scatters.svg)](https://crates.io/crates/text-scatters)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 ## Installation
 
-### From GitHub
+```bash
+cargo install text-scatters
+```
+
+### From Source
 
 ```bash
 # Install the latest version
