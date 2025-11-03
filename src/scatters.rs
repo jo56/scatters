@@ -5,14 +5,15 @@ pub struct ScatteredWord {
     pub word: String,
     pub x: u16,
     pub y: u16,
+    pub source_file: String,
 }
 
 pub struct ScattersGenerator {
-    word_pool: Vec<String>,
+    word_pool: Vec<(String, String)>, // Vec of (word, source_file_path)
 }
 
 impl ScattersGenerator {
-    pub fn new(words: Vec<String>) -> Self {
+    pub fn new(words: Vec<(String, String)>) -> Self {
         Self { word_pool: words }
     }
 
@@ -35,7 +36,7 @@ impl ScattersGenerator {
             min_count.min(self.word_pool.len())
         };
 
-        let mut selected_words: Vec<String> = self
+        let mut selected_words: Vec<(String, String)> = self
             .word_pool
             .choose_multiple(&mut rng, count)
             .cloned()
@@ -49,7 +50,7 @@ impl ScattersGenerator {
         let mut scattered_words = Vec::new();
         let mut occupied_positions = Vec::new();
 
-        for word in selected_words.iter() {
+        for (word, source_file) in selected_words.iter() {
             let mut attempts = 0;
             let max_attempts = 100;
             let mut placed = false;
@@ -70,6 +71,7 @@ impl ScattersGenerator {
                         word: word.clone(),
                         x,
                         y,
+                        source_file: source_file.clone(),
                     });
                     placed = true;
                     break;
@@ -87,6 +89,7 @@ impl ScattersGenerator {
                     word: word.clone(),
                     x,
                     y,
+                    source_file: source_file.clone(),
                 });
             }
         }
@@ -128,12 +131,20 @@ mod tests {
 
     #[test]
     fn test_scatters_generation() {
-        let words = vec!["hello".to_string(), "world".to_string(), "rust".to_string()];
+        let words = vec![
+            ("hello".to_string(), "test.txt".to_string()),
+            ("world".to_string(), "test.txt".to_string()),
+            ("rust".to_string(), "test.txt".to_string()),
+        ];
         let generator = ScattersGenerator::new(words);
         let scattered = generator.generate_with_density(80, 24, 1.0);
 
         assert!(!scattered.is_empty());
         assert!(scattered.len() <= 3);
+        // Verify that source_file is set
+        for word in &scattered {
+            assert_eq!(word.source_file, "test.txt");
+        }
     }
 
 }

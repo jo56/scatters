@@ -6,6 +6,7 @@ use ratatui::{
     widgets::{Paragraph, Wrap, Block, BorderType, Borders},
     Frame,
 };
+use std::path::PathBuf;
 
 pub struct App {
     pub scattered_words: Vec<ScatteredWord>,
@@ -15,7 +16,8 @@ pub struct App {
     pub highlighted_words: Vec<usize>,  // Track all highlighted words
     pub density: f32,  // Density multiplier for word generation (0.1 to 6.0)
     pub use_dimmed_current: bool,  // If true, current selection uses visited color instead of bright color
-    pub fullscreen_mode: bool,  
+    pub fullscreen_mode: bool,
+    pub base_directory: PathBuf,  // Base directory for computing relative paths
 }
 
 impl App {
@@ -23,6 +25,7 @@ impl App {
         scattered_words: Vec<ScatteredWord>,
         word_count: usize,
         styling: AppStyling,
+        base_directory: PathBuf,
     ) -> Self {
         Self {
             scattered_words,
@@ -32,7 +35,8 @@ impl App {
             highlighted_words: vec![0],  // Start with first word highlighted
             density: 1.0,  // Start at default density
             use_dimmed_current: false,  // Start with bright current selection
-            fullscreen_mode: false,  
+            fullscreen_mode: false,
+            base_directory,
         }
     }
 
@@ -111,11 +115,24 @@ pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
     ];
     let controls_width = controls_lines.iter().map(|s| s.len()).max().unwrap_or(0);
 
+    // Info section: calculate width if a word is selected
+    let info_width = if let Some(index) = app.selected_word_index {
+        if let Some(scattered_word) = app.scattered_words.get(index) {
+            let word_line = format!("Word: {}", scattered_word.word);
+            let file_line = format!("File: {}", scattered_word.source_file);
+            word_line.len().max(file_line.len())
+        } else {
+            0
+        }
+    } else {
+        0
+    };
+
     // Take the maximum of all sections
-    let content_width = scatters_width.max(density_width).max(controls_width);
+    let content_width = scatters_width.max(density_width).max(controls_width).max(info_width);
 
     // Add padding for borders (2) and internal padding (2) and a bit extra (2)
-    (content_width as u16 + 6).min(20) // Cap sidebar width to 20 
+    (content_width as u16 + 6).min(20) // Cap sidebar width to 20
 }
 
 fn widget_block(border_type: BorderType) -> Block<'static> {
@@ -154,16 +171,44 @@ pub fn ui(f: &mut Frame, app: &App) {
 }
 
 fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
-    let sections = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([Constraint::Length(4), Constraint::Length(3), Constraint::Length(7)])
-        .split(area);
+    // Conditionally add info box section if a word is selected
+    let has_selection = app.selected_word_index.is_some();
 
-    let container_area = Rect {
-        x: area.x,
-        y: sections[0].y,
-        width: area.width,
-        height: sections[0].height + sections[1].height + sections[2].height,
+    let sections = if has_selection {
+        Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([
+                Constraint::Length(4),  // Scatters
+                Constraint::Length(3),  // Density
+                Constraint::Length(7),  // Controls
+                Constraint::Length(4),  // Info (when visible)
+            ])
+            .split(area)
+    } else {
+        Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([
+                Constraint::Length(4),  // Scatters
+                Constraint::Length(3),  // Density
+                Constraint::Length(7),  // Controls
+            ])
+            .split(area)
+    };
+
+    let container_area = if has_selection {
+        Rect {
+            x: area.x,
+            y: sections[0].y,
+            width: area.width,
+            height: sections[0].height + sections[1].height + sections[2].height + sections[3].height,
+        }
+    } else {
+        Rect {
+            x: area.x,
+            y: sections[0].y,
+            width: area.width,
+            height: sections[0].height + sections[1].height + sections[2].height,
+        }
     };
 
     let mut sidebar_container = widget_block(app.styling.border_type)
@@ -264,6 +309,46 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
         .wrap(Wrap { trim: true });
 
     f.render_widget(controls, sections[2]);
+
+    // Render info box if a word is selected
+    if has_selection {
+        render_info_box(f, sections[3], app);
+    }
+}
+
+fn render_info_box(f: &mut Frame, area: Rect, app: &App) {
+    let mut info_block = widget_block(app.styling.border_type)
+        .border_style(app.styling.border_style)
+        .title_top(Line::from(Span::styled(" Info ", app.styling.text_style)));
+
+    if app.styling.use_background_fill {
+        info_block = info_block.style(app.styling.text_style);
+    }
+
+    // Get the selected word and its source file
+    let (word_text, file_text) = if let Some(index) = app.selected_word_index {
+        if let Some(scattered_word) = app.scattered_words.get(index) {
+            (
+                format!("Word: {}", scattered_word.word),
+                format!("File: {}", scattered_word.source_file),
+            )
+        } else {
+            ("Word: (none)".to_string(), "File: (none)".to_string())
+        }
+    } else {
+        ("Word: (none)".to_string(), "File: (none)".to_string())
+    };
+
+    let info_text = vec![
+        Line::from(Span::styled(word_text, app.styling.text_style)),
+        Line::from(Span::styled(file_text, app.styling.text_style)),
+    ];
+
+    let info = Paragraph::new(info_text)
+        .block(info_block)
+        .alignment(Alignment::Left);
+
+    f.render_widget(info, area);
 }
 
 fn render_canvas(f: &mut Frame, area: Rect, app: &App) {

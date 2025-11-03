@@ -119,7 +119,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     println!("Parsing: {}", path.display());
                     match parser::parse_file(&path) {
                         Ok(words) => {
-                            word_bank.add_words(words);
+                            // Compute relative path from base directory
+                            let relative_path = path
+                                .strip_prefix(&directory)
+                                .unwrap_or(&path)
+                                .to_string_lossy()
+                                .replace('\\', "/"); // Normalize path separators
+                            word_bank.add_words(words, relative_path);
                             file_count += 1;
                         }
                         Err(e) => {
@@ -170,7 +176,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     // Create temporary app to calculate sidebar width
-    let temp_app = ui::App::new(Vec::new(), word_count, styling.clone());
+    let temp_app = ui::App::new(Vec::new(), word_count, styling.clone(), directory.clone());
     let sidebar_width = ui::calculate_sidebar_width_for_app(&temp_app);
 
     // Calculate actual canvas area based on dynamic sidebar
@@ -178,7 +184,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let canvas_height = size.height.saturating_sub(2);
     let scattered_words = generator.generate_with_density(canvas_width, canvas_height, 1.0);
 
-    let mut app = ui::App::new(scattered_words, word_count, styling);
+    let mut app = ui::App::new(scattered_words, word_count, styling, directory);
 
     let res = run_app(&mut terminal, &mut app, &generator);
 

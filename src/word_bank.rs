@@ -1,26 +1,30 @@
-use std::collections::HashSet;
+use std::collections::HashMap;
 
 pub struct WordBank {
-    words: HashSet<String>,
+    words: HashMap<String, String>, // Maps word -> source file path
 }
 
 impl WordBank {
     pub fn new() -> Self {
         Self {
-            words: HashSet::new(),
+            words: HashMap::new(),
         }
     }
 
-    pub fn add_words(&mut self, words: Vec<String>) {
+    pub fn add_words(&mut self, words: Vec<String>, file_path: String) {
         for word in words {
             if !is_stop_word(&word) && word.len() >= 3 {
-                self.words.insert(word);
+                // Only store the first occurrence of each word
+                self.words.entry(word).or_insert(file_path.clone());
             }
         }
     }
 
-    pub fn get_words(&self) -> Vec<String> {
-        self.words.iter().cloned().collect()
+    pub fn get_words(&self) -> Vec<(String, String)> {
+        self.words
+            .iter()
+            .map(|(word, path)| (word.clone(), path.clone()))
+            .collect()
     }
 
     pub fn word_count(&self) -> usize {
@@ -52,14 +56,17 @@ mod tests {
     #[test]
     fn test_stop_word_filtering() {
         let mut bank = WordBank::new();
-        bank.add_words(vec![
-            "the".to_string(),
-            "wonderful".to_string(),
-            "and".to_string(),
-            "beautiful".to_string(),
-        ]);
+        bank.add_words(
+            vec![
+                "the".to_string(),
+                "wonderful".to_string(),
+                "and".to_string(),
+                "beautiful".to_string(),
+            ],
+            "test.txt".to_string(),
+        );
 
-        let words = bank.get_words();
+        let words: Vec<String> = bank.get_words().iter().map(|(w, _)| w.clone()).collect();
         assert!(words.contains(&"wonderful".to_string()));
         assert!(words.contains(&"beautiful".to_string()));
         assert!(!words.contains(&"the".to_string()));
@@ -69,10 +76,10 @@ mod tests {
     #[test]
     fn test_minimum_word_length() {
         let mut bank = WordBank::new();
-        bank.add_words(vec!["hi".to_string(), "hello".to_string()]);
+        bank.add_words(vec!["hi".to_string(), "hello".to_string()], "test.txt".to_string());
 
         let words = bank.get_words();
         assert_eq!(words.len(), 1);
-        assert!(words.contains(&"hello".to_string()));
+        assert!(words.iter().any(|(w, _)| w == "hello"));
     }
 }
