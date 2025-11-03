@@ -247,7 +247,13 @@ fn wrap_text_line(text: &str, max_width: usize) -> Vec<String> {
 
     while current_pos < text.len() {
         let remaining = text.len() - current_pos;
-        let chunk_size = remaining.min(max_width);
+        let mut chunk_size = remaining.min(max_width);
+
+        // Ensure we're slicing at a character boundary
+        while current_pos + chunk_size < text.len() && !text.is_char_boundary(current_pos + chunk_size) {
+            chunk_size -= 1;
+        }
+
         let chunk = &text[current_pos..current_pos + chunk_size];
         lines.push(chunk.to_string());
         current_pos += chunk_size;
