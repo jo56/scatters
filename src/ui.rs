@@ -18,6 +18,7 @@ pub struct App {
     pub use_dimmed_current: bool,  // If true, current selection uses visited color instead of bright color
     pub fullscreen_mode: bool,
     pub directory: PathBuf,  // Current directory being used
+    pub actual_bar_width: u16,  // Actual rendered width of density bar (updated during render)
 }
 
 impl App {
@@ -37,6 +38,7 @@ impl App {
             use_dimmed_current: false,  // Start with bright current selection
             fullscreen_mode: false,
             directory,
+            actual_bar_width: 16,  // Default value, will be updated during first render
         }
     }
 
@@ -86,12 +88,6 @@ impl App {
         // Toggle between bright current selection and dimmed (visited color) current selection
         self.use_dimmed_current = !self.use_dimmed_current;
     }
-}
-
-pub fn get_density_bar_width(terminal_width: u16) -> u16 {
-    let sidebar_width = terminal_width * 25 / 100;
-    let section_width = sidebar_width.saturating_sub(2);
-    section_width.saturating_sub(2).max(8)
 }
 
 pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
@@ -262,7 +258,7 @@ fn wrap_text_line(text: &str, max_width: usize) -> Vec<String> {
     lines
 }
 
-pub fn ui(f: &mut Frame, app: &App) {
+pub fn ui(f: &mut Frame, app: &mut App) {
     let frame_area = f.area();
 
     // Render unified white background for monochrome theme
@@ -291,7 +287,7 @@ pub fn ui(f: &mut Frame, app: &App) {
     }
 }
 
-fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
+fn render_sidebar(f: &mut Frame, area: Rect, app: &mut App) {
     // Conditionally add info box section if a word is selected
     let has_selection = app.selected_word_index.is_some();
 
@@ -422,6 +418,10 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &App) {
 
     let available_width = sections[1].width.saturating_sub(2).max(8) as usize;
     let bar_width = available_width;
+
+    // Store the actual bar width for use in key handling
+    app.actual_bar_width = bar_width as u16;
+
     let density_ratio = (app.density - 0.1) / (6.0 - 0.1);
     let filled_width = (density_ratio * bar_width as f32) as usize;
     let empty_width = bar_width - filled_width;
