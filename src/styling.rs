@@ -128,9 +128,7 @@ impl AppStyling {
             selected_text_style: Style::default()
                 .fg(Color::Black)
                 .bg(Color::Black),  // Black on black = solid black boxes
-            current_selected_style: Style::default()
-                .fg(Color::Black)
-                .bg(Color::Black),  // Black on black = solid black boxes
+            current_selected_style: Style::default().fg(Color::Black),  // Black text, no background (default state)
             density_bar_style: Style::default().fg(Color::Black).bg(Color::White),  // Same as border
             border_type: BorderType::Plain,
             use_background_fill: true,  // Enable background fill for seamless white background
@@ -179,10 +177,8 @@ impl AppStyling {
             border_style: Self::hex_style(MONO_COLOR),
             highlighted_border_style: Self::hex_style(MONO_COLOR),
             text_style: Self::hex_style(MONO_COLOR),
-            selected_text_style: Self::hex_style(MONO_COLOR)
-                .bg(Self::hex_color(MONO_COLOR)),  
-            current_selected_style: Self::hex_style(MONO_COLOR)
-                .bg(Self::hex_color(MONO_COLOR)),  
+            selected_text_style: Self::hex_style(MONO_COLOR).bg(Self::hex_color(MONO_COLOR)),  
+            current_selected_style: Self::hex_style(MONO_COLOR),
             density_bar_style: Self::hex_style(MONO_COLOR),  
             border_type: BorderType::Plain,
             use_background_fill: false,  
