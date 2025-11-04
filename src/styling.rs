@@ -22,6 +22,7 @@ impl AppStyling {
             "lightmono" => Ok(Self::lightmono_theme()),
             "redmono" => Ok(Self::redmono_theme()),
             "softmono" => Ok(Self::softmono_theme()),
+            "graymono" => Ok(Self::graymono_theme()),
             "nord" => Ok(Self::nord_theme()),
             "nord-bg" => Ok(Self::nord_bg_theme()),
             "gruvbox" => Ok(Self::gruvbox_theme()),
@@ -29,7 +30,7 @@ impl AppStyling {
             "goldgreen-light" => Ok(Self::goldgreen_light_theme()),
             "goldgreen-dark" => Ok(Self::goldgreen_dark_theme()),
             _ => Err(format!(
-                "Invalid theme '{}'. Valid themes: monochrome, lightmono, redmono, softmono, nord, nord-bg, gruvbox, rosepine, goldgreen-light, goldgreen-dark",
+                "Invalid theme '{}'. Valid themes: monochrome, lightmono, redmono, softmono, graymono, nord, nord-bg, gruvbox, rosepine, goldgreen-light, goldgreen-dark",
                 theme
             )),
         }
@@ -127,9 +128,7 @@ impl AppStyling {
             selected_text_style: Style::default()
                 .fg(Color::Black)
                 .bg(Color::Black),  // Black on black = solid black boxes
-            current_selected_style: Style::default()
-                .fg(Color::Black)
-                .bg(Color::Black),  // Black on black = solid black boxes
+            current_selected_style: Style::default().fg(Color::Black),  // Black text, no background (default state)
             density_bar_style: Style::default().fg(Color::Black).bg(Color::White),  // Same as border
             border_type: BorderType::Plain,
             use_background_fill: true,  // Enable background fill for seamless white background
@@ -137,7 +136,7 @@ impl AppStyling {
     }
 
     fn softmono_theme() -> Self {
-        const SOFT_WHITE: &str = "#FCF6F8"; 
+        const SOFT_WHITE: &str = "#FCF6F8";
 
         Self {
             border_style: Style::default().fg(Color::Black).bg(Self::hex_color(SOFT_WHITE)),
@@ -145,10 +144,26 @@ impl AppStyling {
             text_style: Style::default().fg(Color::Black).bg(Self::hex_color(SOFT_WHITE)),
             selected_text_style: Style::default()
                 .fg(Color::Black)
-                .bg(Color::Black),  // Black on black = solid black boxes
+                .bg(Color::Black),  // Black on black = solid black boxes (previously visited + toggled current)
+            current_selected_style: Style::default().fg(Color::Black),  // Black text, no background (default state)
+            density_bar_style: Style::default().fg(Color::Black).bg(Self::hex_color(SOFT_WHITE)),  // Same as border
+            border_type: BorderType::Plain,
+            use_background_fill: true,  // Enable background fill for seamless soft white background
+        }
+    }
+
+    fn graymono_theme() -> Self {
+        const SOFT_WHITE: &str = "#FCF6F8";
+        const SOFT_GRAY: &str = "#8B8B8B";
+
+        Self {
+            border_style: Style::default().fg(Color::Black).bg(Self::hex_color(SOFT_WHITE)),
+            highlighted_border_style: Style::default().fg(Color::Black).bg(Self::hex_color(SOFT_WHITE)),
+            text_style: Style::default().fg(Color::Black).bg(Self::hex_color(SOFT_WHITE)),
+            selected_text_style: Self::hex_style(SOFT_GRAY),  // Soft gray text, no background (previously visited + toggled current)
             current_selected_style: Style::default()
                 .fg(Color::Black)
-                .bg(Color::Black),  // Black on black = solid black boxes
+                .bg(Color::Black),  // Black on black = darker highlight (default state)
             density_bar_style: Style::default().fg(Color::Black).bg(Self::hex_color(SOFT_WHITE)),  // Same as border
             border_type: BorderType::Plain,
             use_background_fill: true,  // Enable background fill for seamless soft white background
@@ -162,10 +177,8 @@ impl AppStyling {
             border_style: Self::hex_style(MONO_COLOR),
             highlighted_border_style: Self::hex_style(MONO_COLOR),
             text_style: Self::hex_style(MONO_COLOR),
-            selected_text_style: Self::hex_style(MONO_COLOR)
-                .bg(Self::hex_color(MONO_COLOR)),  
-            current_selected_style: Self::hex_style(MONO_COLOR)
-                .bg(Self::hex_color(MONO_COLOR)),  
+            selected_text_style: Self::hex_style(MONO_COLOR).bg(Self::hex_color(MONO_COLOR)),  
+            current_selected_style: Self::hex_style(MONO_COLOR),
             density_bar_style: Self::hex_style(MONO_COLOR),  
             border_type: BorderType::Plain,
             use_background_fill: false,  
