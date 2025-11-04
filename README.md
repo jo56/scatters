@@ -39,18 +39,22 @@ cargo install --path .
 ## Usage
 
 ```bash
-# Basic usage
+# Process a directory of text files
 text-scatters /path/to/text/files
+
+# Process a single file
+text-scatters /path/to/file.txt
+text-scatters document.epub
 
 # Use the last path (after running once)
 text-scatters
 
 # With a specific theme
 text-scatters /path/to/text/files --theme rosepine
-text-scatters -t nord  # Uses last path with nord theme
+text-scatters mybook.epub -t nord
 ```
 
-Text Scatters remembers the last directory you used, so after the first run, you can simply type `text-scatters` without a path argument. The last-used path is saved in your system's config directory (`~/.config/text-scatters/` on Linux/macOS, `%APPDATA%\text-scatters\` on Windows).
+Text Scatters accepts both individual files (`.txt`, `.md`, `.markdown`, `.epub`) and directories containing such files. It remembers the last path you used, so after the first run, you can simply type `text-scatters` without a path argument. The last-used path is saved in your system's config directory (`~/.config/text-scatters/` on Linux/macOS, `%APPDATA%\text-scatters\` on Windows).
 
 ### Available Themes
 
@@ -76,7 +80,7 @@ Text Scatters remembers the last directory you used, so after the first run, you
 
 ## How It Works
 
-1. **Parsing**: Text Scatters reads all text files from the specified directory
+1. **Parsing**: Text Scatters reads text from a single file or all text files from a directory
 2. **Filtering**: Removes common stop words and keeps words 3+ characters long
 3. **Generation**: Randomly places words across the terminal canvas
 4. **Interaction**: Navigate and explore the scattered text with keyboard controls

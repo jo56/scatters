@@ -19,8 +19,8 @@ use std::path::{Path, PathBuf};
 #[command(name = "text-scatters")]
 #[command(about = "A cut-up poetry generator from text files", long_about = None)]
 struct Args {
-    #[arg(help = "Directory containing text files to parse (optional - uses last path if omitted)")]
-    directory: Option<PathBuf>,
+    #[arg(help = "File or directory containing text files to parse (optional - uses last path if omitted)")]
+    path: Option<PathBuf>,
 
     #[arg(
         short = 't',
@@ -58,7 +58,7 @@ fn load_last_path() -> Result<PathBuf, Box<dyn std::error::Error>> {
     let config_file = config_dir.join("last_path.txt");
 
     if !config_file.exists() {
-        return Err("No previous path saved. Please provide a directory path.".into());
+        return Err("No previous path saved. Please provide a file or directory path.".into());
     }
 
     let path_str = fs::read_to_string(config_file)?;
@@ -74,9 +74,9 @@ fn load_last_path() -> Result<PathBuf, Box<dyn std::error::Error>> {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
-    // Determine which directory to use
-    let directory = match args.directory {
-        Some(dir) => dir,
+    // Determine which path to use
+    let input_path = match args.path {
+        Some(p) => p,
         None => {
             match load_last_path() {
                 Ok(path) => {
@@ -91,63 +91,104 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    if !directory.is_dir() {
+    if !input_path.exists() {
         eprintln!(
-            "Error: '{}' is not a valid directory",
-            directory.display()
+            "Error: '{}' does not exist",
+            input_path.display()
         );
         std::process::exit(1);
     }
 
-    println!("Scanning directory: {}", directory.display());
-
     let mut word_bank = word_bank::WordBank::new();
     let mut file_count = 0;
+    let display_path: PathBuf;
 
-    for entry in fs::read_dir(&directory)? {
-        let entry = entry?;
-        let path = entry.path();
+    // Handle both single file and directory
+    if input_path.is_file() {
+        // Process single file
+        let extension = input_path
+            .extension()
+            .and_then(|s| s.to_str())
+            .map(|s| s.to_lowercase());
 
-        if path.is_file() {
-            let extension = path
-                .extension()
-                .and_then(|s| s.to_str())
-                .map(|s| s.to_lowercase());
-
-            match extension.as_deref() {
-                Some("txt") | Some("md") | Some("markdown") | Some("epub") => {
-                    println!("Parsing: {}", path.display());
-                    match parser::parse_file(&path) {
-                        Ok(words) => {
-                            // Compute relative path from base directory
-                            let relative_path = path
-                                .strip_prefix(&directory)
-                                .unwrap_or(&path)
-                                .to_string_lossy()
-                                .replace('\\', "/"); // Normalize path separators
-                            word_bank.add_words(words, relative_path);
-                            file_count += 1;
-                        }
-                        Err(e) => {
-                            eprintln!("Warning: Failed to parse {}: {}", path.display(), e);
-                        }
+        match extension.as_deref() {
+            Some("txt") | Some("md") | Some("markdown") | Some("epub") => {
+                println!("Parsing file: {}", input_path.display());
+                match parser::parse_file(&input_path) {
+                    Ok(words) => {
+                        let file_name = input_path
+                            .file_name()
+                            .unwrap_or_default()
+                            .to_string_lossy()
+                            .to_string();
+                        word_bank.add_words(words, file_name);
+                        file_count += 1;
+                    }
+                    Err(e) => {
+                        eprintln!("Error: Failed to parse {}: {}", input_path.display(), e);
+                        std::process::exit(1);
                     }
                 }
-                _ => {}
+            }
+            _ => {
+                eprintln!("Error: '{}' is not a supported file type (txt, md, markdown, epub)", input_path.display());
+                std::process::exit(1);
             }
         }
+        display_path = input_path.clone();
+    } else if input_path.is_dir() {
+        // Process directory
+        println!("Scanning directory: {}", input_path.display());
+
+        for entry in fs::read_dir(&input_path)? {
+            let entry = entry?;
+            let path = entry.path();
+
+            if path.is_file() {
+                let extension = path
+                    .extension()
+                    .and_then(|s| s.to_str())
+                    .map(|s| s.to_lowercase());
+
+                match extension.as_deref() {
+                    Some("txt") | Some("md") | Some("markdown") | Some("epub") => {
+                        println!("Parsing: {}", path.display());
+                        match parser::parse_file(&path) {
+                            Ok(words) => {
+                                // Compute relative path from base directory
+                                let relative_path = path
+                                    .strip_prefix(&input_path)
+                                    .unwrap_or(&path)
+                                    .to_string_lossy()
+                                    .replace('\\', "/"); // Normalize path separators
+                                word_bank.add_words(words, relative_path);
+                                file_count += 1;
+                            }
+                            Err(e) => {
+                                eprintln!("Warning: Failed to parse {}: {}", path.display(), e);
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+        display_path = input_path.clone();
+    } else {
+        eprintln!("Error: '{}' is neither a file nor a directory", input_path.display());
+        std::process::exit(1);
     }
 
     println!("Parsed {} files", file_count);
     println!("Collected {} unique words", word_bank.word_count());
 
     if word_bank.word_count() == 0 {
-        eprintln!("Error: No words found in directory");
+        eprintln!("Error: No words found");
         std::process::exit(1);
     }
 
-    // Save the successfully used directory for next time
-    if let Err(e) = save_last_path(&directory) {
+    // Save the successfully used path for next time
+    if let Err(e) = save_last_path(&display_path) {
         eprintln!("Warning: Could not save path for next time: {}", e);
     }
 
@@ -176,7 +217,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     // Create temporary app to calculate sidebar width
-    let temp_app = ui::App::new(Vec::new(), word_count, styling.clone(), directory.clone());
+    let temp_app = ui::App::new(Vec::new(), word_count, styling.clone(), display_path.clone());
     let sidebar_width = ui::calculate_sidebar_width_for_app(&temp_app);
 
     // Calculate actual canvas area based on dynamic sidebar
@@ -184,7 +225,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let canvas_height = size.height.saturating_sub(2);
     let scattered_words = generator.generate_with_density(canvas_width, canvas_height, 1.0);
 
-    let mut app = ui::App::new(scattered_words, word_count, styling, directory);
+    let mut app = ui::App::new(scattered_words, word_count, styling, display_path);
 
     let res = run_app(&mut terminal, &mut app, &generator);
 
