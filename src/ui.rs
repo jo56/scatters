@@ -105,6 +105,7 @@ pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
     let controls_lines = [
         "↑/↓ - density",
         "←/→ - highlight",
+        "spc - toggle",
         "r - reroll",
         "v - view",
         "q - quit",
@@ -319,9 +320,9 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &mut App) {
 
     // Calculate fixed sections height first to ensure they have priority
     let fixed_height = if has_selection {
-        4 + 3 + 7 + info_box_height  // Scatters + Density + Controls + Info (dynamic)
+        4 + 3 + 8 + info_box_height  // Scatters + Density + Controls + Info (dynamic)
     } else {
-        4 + 3 + 7  // Scatters + Density + Controls
+        4 + 3 + 8  // Scatters + Density + Controls
     };
 
     // Calculate path box height dynamically based on wrapped content
@@ -341,7 +342,7 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &mut App) {
             .constraints([
                 Constraint::Length(4),                  // Scatters - fixed
                 Constraint::Length(3),                  // Density - fixed
-                Constraint::Length(7),                  // Controls - fixed (priority)
+                Constraint::Length(8),                  // Controls - fixed (priority)
                 Constraint::Length(info_box_height),    // Info - dynamically sized to wrapped content
                 Constraint::Length(path_box_height),    // Path - sized to content, capped to available space
             ])
@@ -352,7 +353,7 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &mut App) {
             .constraints([
                 Constraint::Length(4),                  // Scatters - fixed
                 Constraint::Length(3),                  // Density - fixed
-                Constraint::Length(7),                  // Controls - fixed (priority)
+                Constraint::Length(8),                  // Controls - fixed (priority)
                 Constraint::Length(path_box_height),    // Path - sized to content, capped to available space
             ])
             .split(area)
@@ -458,6 +459,10 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &mut App) {
         Line::from(vec![
             Span::styled("←/→", app.styling.text_style),
             Span::styled(" - highlight", app.styling.text_style),
+        ]),
+        Line::from(vec![
+            Span::styled("spc", app.styling.text_style),
+            Span::styled(" - toggle", app.styling.text_style),
         ]),
         Line::from(vec![
             Span::styled("r", app.styling.text_style),
