@@ -92,8 +92,8 @@ impl App {
 
 pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
     // Calculate the longest text line in each section
-    let count_text = format!("words {} / {}", app.scattered_words.len(), app.word_count);
-    let highlighted_text = format!("selected {} / {}", app.highlighted_words.len(), app.scattered_words.len());
+    let count_text = format!("{} / {} words", app.scattered_words.len(), app.word_count);
+    let highlighted_text = format!("{} / {} selected", app.highlighted_words.len(), app.scattered_words.len());
 
     // Scatters section: compare both lines
     let scatters_width = count_text.len().max(highlighted_text.len());
@@ -134,10 +134,10 @@ pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
     let path_width = truncated_path_lines.iter().map(|s| s.len()).max().unwrap_or(0);
 
     // Take the maximum of all sections
-    let content_width = scatters_width.max(density_width).max(controls_width).max(info_width).max(path_width);
+    let content_width = scatters_width.max(controls_width).max(info_width).max(path_width);
 
     // Add padding for borders (2) and internal padding (2) and a bit extra (2)
-    (content_width as u16 + 6).min(20) // Cap sidebar width to 20
+    content_width as u16 + 6 
 }
 
 fn widget_block(border_type: BorderType) -> Block<'static> {
@@ -275,8 +275,13 @@ pub fn ui(f: &mut Frame, app: &mut App) {
         render_canvas(f, frame_area, app);
     } else {
         // Normal mode: sidebar + canvas layout
+
         // Calculate sidebar width based on content
-        let sidebar_width = calculate_sidebar_width_for_app(app);
+        // keeping in case we want dynamic width later
+        //let sidebar_width = calculate_sidebar_width_for_app(app); 
+
+        // Fixed width for sidebar
+        let sidebar_width = 23 as u16; 
 
         let main_layout = Layout::default()
             .direction(Direction::Horizontal)
@@ -395,8 +400,8 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &mut App) {
         scatters_block = scatters_block.style(app.styling.text_style);
     }
 
-    let count_text = format!("words {} / {}", app.scattered_words.len(), app.word_count);
-    let highlighted_text = format!("selected {} / {}", app.highlighted_words.len(), app.scattered_words.len());
+    let count_text = format!("{} / {} words", app.scattered_words.len(), app.word_count);
+    let highlighted_text = format!("{} / {} selected", app.highlighted_words.len(), app.scattered_words.len());
 
     let scatters_text = vec![
         Line::from(Span::styled(count_text, app.styling.text_style)),
