@@ -7,6 +7,8 @@ use ratatui::{
     Frame,
 };
 use std::path::PathBuf;
+//use std::fs::OpenOptions;
+//use std::io::Write; // For debug logging
 
 pub struct App {
     pub scattered_words: Vec<ScatteredWord>,
@@ -92,11 +94,11 @@ impl App {
 
 pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
     // Calculate the longest text line in each section
-    let count_text = format!("{} / {} words ", app.scattered_words.len(), app.word_count);
+    let count_text = format!("{} / {} words", app.scattered_words.len(), app.word_count);
     let highlighted_text = format!("{} / {} selected", app.highlighted_words.len(), app.scattered_words.len());
 
     // Scatters section: compare both lines
-    let scatters_width = count_text.len().max(highlighted_text.len());
+    let scatters_width = (count_text.len() + 3).max(highlighted_text.len() + 2); // +3 and +2 for accounting for borders and padding
 
     // Controls section: find longest control line
     let controls_lines = [
@@ -107,7 +109,20 @@ pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
         "v - view",
         "q - quit",
     ];
-    let controls_width = controls_lines.iter().map(|s| s.len()).max().unwrap_or(0);
+    let controls_width = controls_lines.iter()
+      .map(|s| s.chars().count())  // ← count characters, not bytes
+      .max()
+      .unwrap_or(0);
+    scatters_width.max(controls_width) as u16
+}
+
+    //ADDITIONAL RESIZE CALCULATION LOGIC
+   /*
+   Started making more sense to only use certain values for width calculations, so these were all taken out
+   Could be added back in later if more boxes want to be used for width calculation
+
+   */
+    
 
     // Info section: calculate width if a word is selected
     /*
@@ -135,11 +150,22 @@ pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
     */
 
     // Take the maximum of relevant sections
-    let content_width = scatters_width.max(controls_width);
+    //dbg!(scatters_width, controls_width);
+    //let content_width = ;
+    //dbg!(content_width);
 
-    // Add padding for borders (2) and internal padding (2) and a bit extra (2)
-    (content_width as u16 + 6).min(20) // Cap sidebar width to 20
-}
+    // Log to file for debugging
+    /*
+    if let Ok(mut file) = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("debug.log") {
+        writeln!(file, "scatters_width: {}, controls_width: {}, content_width: {}",
+                 scatters_width, controls_width, content_width).ok();
+    }*/ 
+
+    // Add 3 to account for borders and padding
+  
 
 fn widget_block(border_type: BorderType) -> Block<'static> {
     Block::default()
