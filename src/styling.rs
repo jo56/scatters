@@ -22,7 +22,7 @@ impl AppStyling {
             "lightmono" => Ok(Self::lightmono_theme()),
             "redmono" => Ok(Self::redmono_theme()),
             "softmono" => Ok(Self::softmono_theme()),
-            "graymono" => Ok(Self::graymono_theme()),
+            "bluemono" => Ok(Self::bluemono_theme()),
             "nord" => Ok(Self::nord_theme()),
             "nord-bg" => Ok(Self::nord_bg_theme()),
             "gruvbox" => Ok(Self::gruvbox_theme()),
@@ -30,7 +30,7 @@ impl AppStyling {
             "goldgreen-light" => Ok(Self::goldgreen_light_theme()),
             "goldgreen-dark" => Ok(Self::goldgreen_dark_theme()),
             _ => Err(format!(
-                "Invalid theme '{}'. Valid themes: monochrome, lightmono, redmono, softmono, graymono, nord, nord-bg, gruvbox, rosepine, goldgreen-light, goldgreen-dark",
+                "Invalid theme '{}'. Valid themes: monochrome, lightmono, redmono, softmono, bluemono, nord, nord-bg, gruvbox, rosepine, goldgreen-light, goldgreen-dark",
                 theme
             )),
         }
@@ -152,15 +152,15 @@ impl AppStyling {
         }
     }
 
-    fn graymono_theme() -> Self {
+    fn bluemono_theme() -> Self {
         const SOFT_WHITE: &str = "#FCF6F8";
-        const SOFT_GRAY: &str = "#8B8B8B";
+        const SOFT_BLUE: &str = "#5B7FA6";
 
         Self {
             border_style: Style::default().fg(Color::Black).bg(Self::hex_color(SOFT_WHITE)),
             highlighted_border_style: Style::default().fg(Color::Black).bg(Self::hex_color(SOFT_WHITE)),
             text_style: Style::default().fg(Color::Black).bg(Self::hex_color(SOFT_WHITE)),
-            selected_text_style: Self::hex_style(SOFT_GRAY),  // Soft gray text, no background (previously visited + toggled current)
+            selected_text_style: Self::hex_style(SOFT_BLUE),  // Soft blue text, no background (previously visited + toggled current)
             current_selected_style: Style::default()
                 .fg(Color::Black)
                 .bg(Color::Black),  // Black on black = darker highlight (default state)
