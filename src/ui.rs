@@ -98,9 +98,6 @@ pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
     // Scatters section: compare both lines
     let scatters_width = count_text.len().max(highlighted_text.len());
 
-    // Density section: the bar + title
-    let density_width = 20; // A reasonable default for the density bar
-
     // Controls section: find longest control line
     let controls_lines = [
         "↑/↓ - density",
@@ -113,6 +110,7 @@ pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
     let controls_width = controls_lines.iter().map(|s| s.len()).max().unwrap_or(0);
 
     // Info section: calculate width if a word is selected
+    /*
     let info_width = if let Some(index) = app.selected_word_index {
         if let Some(scattered_word) = app.scattered_words.get(index) {
             let word_line = format!("Word: {}", scattered_word.word);
@@ -123,18 +121,21 @@ pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
         }
     } else {
         0
-    };
+    };*/
 
     // Path section: calculate width based on wrapped path lines
-    let path_str = app.directory.display().to_string();
+    /*
+    let path_str = app.directory.display().to_string(); 
+    
     // Use a conservative estimate for max_width (content width minus borders/padding)
     let estimated_max_width = 14; // 20 (sidebar cap) - 6 (padding) = 14
     let wrapped_path_lines = wrap_path_smart(&path_str, estimated_max_width);
     let truncated_path_lines = truncate_path_if_needed(wrapped_path_lines, 3, estimated_max_width);
-    let path_width = truncated_path_lines.iter().map(|s| s.len()).max().unwrap_or(0);
+    /let path_width = truncated_path_lines.iter().map(|s| s.len()).max().unwrap_or(0);
+    */
 
-    // Take the maximum of all sections
-    let content_width = scatters_width.max(density_width).max(controls_width).max(info_width).max(path_width);
+    // Take the maximum of relevant sections
+    let content_width = scatters_width.max(controls_width);
 
     // Add padding for borders (2) and internal padding (2) and a bit extra (2)
     (content_width as u16 + 6).min(20) // Cap sidebar width to 20
