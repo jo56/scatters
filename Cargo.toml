@@ -1,6 +1,6 @@
 [package]
 name = "text-scatters"
-version = "0.1.9"
+version = "0.2.0"
 edition = "2021"
 authors = ["jo56"]
 description = "A cut-up technique generator from text and ebook files in the terminal"
