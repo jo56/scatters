@@ -92,8 +92,8 @@ impl App {
 
 pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
     // Calculate the longest text line in each section
-    let count_text = format!("words {} / {}", app.scattered_words.len(), app.word_count);
-    let highlighted_text = format!("selected {} / {}", app.highlighted_words.len(), app.scattered_words.len());
+    let count_text = format!("{} / {} words ", app.scattered_words.len(), app.word_count);
+    let highlighted_text = format!("{} / {} selected", app.highlighted_words.len(), app.scattered_words.len());
 
     // Scatters section: compare both lines
     let scatters_width = count_text.len().max(highlighted_text.len());
@@ -395,8 +395,8 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &mut App) {
         scatters_block = scatters_block.style(app.styling.text_style);
     }
 
-    let count_text = format!("words {} / {}", app.scattered_words.len(), app.word_count);
-    let highlighted_text = format!("selected {} / {}", app.highlighted_words.len(), app.scattered_words.len());
+    let count_text = format!("{} / {} words", app.scattered_words.len(), app.word_count);
+    let highlighted_text = format!("{} / {} selected", app.highlighted_words.len(), app.scattered_words.len());
 
     let scatters_text = vec![
         Line::from(Span::styled(count_text, app.styling.text_style)),
