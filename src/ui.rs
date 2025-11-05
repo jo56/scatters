@@ -128,8 +128,8 @@ pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
     /*
     let info_width = if let Some(index) = app.selected_word_index {
         if let Some(scattered_word) = app.scattered_words.get(index) {
-            let word_line = format!("Word: {}", scattered_word.word);
-            let file_line = format!("File: {}", scattered_word.source_file);
+            let word_line = format!("word: {}", scattered_word.word);
+            let file_line = format!("file: {}", scattered_word.source_file);
             word_line.len().max(file_line.len())
         } else {
             0
@@ -330,8 +330,8 @@ fn render_sidebar(f: &mut Frame, area: Rect, app: &mut App) {
     let info_box_height = if has_selection {
         if let Some(index) = app.selected_word_index {
             if let Some(scattered_word) = app.scattered_words.get(index) {
-                let word_text = format!("Word: {}", scattered_word.word);
-                let file_text = format!("File: {}", scattered_word.source_file);
+                let word_text = format!("word: {}", scattered_word.word);
+                let file_text = format!("file: {}", scattered_word.source_file);
 
                 // Wrap both lines
                 let word_wrapped = wrap_text_line(&word_text, max_width);
@@ -538,14 +538,14 @@ fn render_info_box(f: &mut Frame, area: Rect, app: &App) {
     let (word_text, file_text) = if let Some(index) = app.selected_word_index {
         if let Some(scattered_word) = app.scattered_words.get(index) {
             (
-                format!("Word: {}", scattered_word.word),
-                format!("File: {}", scattered_word.source_file),
+                format!("word: {}", scattered_word.word),
+                format!("file: {}", scattered_word.source_file),
             )
         } else {
-            ("Word: (none)".to_string(), "File: (none)".to_string())
+            ("word: (none)".to_string(), "file: (none)".to_string())
         }
     } else {
-        ("Word: (none)".to_string(), "File: (none)".to_string())
+        ("word: (none)".to_string(), "file: (none)".to_string())
     };
 
     // Wrap both text lines
