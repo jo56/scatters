@@ -116,7 +116,7 @@ pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
     scatters_width.max(controls_width) as u16
 }
 
-    //ADDITIONAL RESIZE CALCULATION LOGIC
+   //ADDITIONAL RESIZE CALCULATION LOGIC
    /*
    Started making more sense to only use certain values for width calculations, so these were all taken out
    Could be added back in later if more boxes want to be used for width calculation
@@ -146,12 +146,12 @@ pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
     let estimated_max_width = 14; // 20 (sidebar cap) - 6 (padding) = 14
     let wrapped_path_lines = wrap_path_smart(&path_str, estimated_max_width);
     let truncated_path_lines = truncate_path_if_needed(wrapped_path_lines, 3, estimated_max_width);
-    /let path_width = truncated_path_lines.iter().map(|s| s.len()).max().unwrap_or(0);
+    let path_width = truncated_path_lines.iter().map(|s| s.len()).max().unwrap_or(0);
+
     */
 
-    // Take the maximum of relevant sections
+    //Glitchy debug output - useless for intended implemenation (clashes with TUI) but looks sick in execution
     //dbg!(scatters_width, controls_width);
-    //let content_width = ;
     //dbg!(content_width);
 
     // Log to file for debugging
@@ -162,9 +162,15 @@ pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
         .open("debug.log") {
         writeln!(file, "scatters_width: {}, controls_width: {}, content_width: {}",
                  scatters_width, controls_width, content_width).ok();
-    }*/ 
+    }
 
-    // Add 3 to account for borders and padding
+    // Take the maximum of all sections
+    let content_width = scatters_width.max(controls_width).max(info_width).max(path_width);
+
+    // Add padding for borders (2) and internal padding (2) and a bit extra (2)
+    (content_width + 6) as u16
+    */ 
+
   
 
 fn widget_block(border_type: BorderType) -> Block<'static> {
