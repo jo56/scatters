@@ -7,6 +7,8 @@ use ratatui::{
     Frame,
 };
 use std::path::PathBuf;
+//use std::fs::OpenOptions;
+//use std::io::Write; // For debug logging
 
 pub struct App {
     pub scattered_words: Vec<ScatteredWord>,
@@ -91,15 +93,12 @@ impl App {
 }
 
 pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
-    // Calculate the longest text line in each section
-    let count_text = format!("{} / {} words ", app.scattered_words.len(), app.word_count);
+    // Formatting Scatters box content for calculations
+    let count_text = format!("{} / {} words", app.scattered_words.len(), app.word_count);
     let highlighted_text = format!("{} / {} selected", app.highlighted_words.len(), app.scattered_words.len());
 
-    // Scatters section: compare both lines
-    let scatters_width = count_text.len().max(highlighted_text.len());
-
-    // Density section: the bar + title
-    let density_width = 20; // A reasonable default for the density bar
+    // Compare both lines
+    let scatters_width = (count_text.len() + 3).max(highlighted_text.len() + 2); // +3 and +2 for accounting for borders and padding
 
     // Controls section: find longest control line
     let controls_lines = [
@@ -110,9 +109,23 @@ pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
         "v - view",
         "q - quit",
     ];
-    let controls_width = controls_lines.iter().map(|s| s.len()).max().unwrap_or(0);
+    let controls_width = (controls_lines.iter()
+      .map(|s| s.chars().count())  // ← count characters, not bytes
+      .max()
+      .unwrap_or(0)) + 2; //+2 for borders and padding
 
+    //Longer of the two sections
+    scatters_width.max(controls_width) as u16
+}
+
+   //ADDITIONAL RESIZE CALCULATION LOGIC
+   /*
+   Started making more sense to only use certain values for width calculations, so these were all taken out
+   Could be added back in later if more boxes are to be used for width calculation
+   */
+    
     // Info section: calculate width if a word is selected
+    /*
     let info_width = if let Some(index) = app.selected_word_index {
         if let Some(scattered_word) = app.scattered_words.get(index) {
             let word_line = format!("Word: {}", scattered_word.word);
@@ -123,22 +136,40 @@ pub fn calculate_sidebar_width_for_app(app: &App) -> u16 {
         }
     } else {
         0
-    };
+    };*/
 
     // Path section: calculate width based on wrapped path lines
-    let path_str = app.directory.display().to_string();
+    /*
+    let path_str = app.directory.display().to_string(); 
     // Use a conservative estimate for max_width (content width minus borders/padding)
     let estimated_max_width = 14; // 20 (sidebar cap) - 6 (padding) = 14
     let wrapped_path_lines = wrap_path_smart(&path_str, estimated_max_width);
     let truncated_path_lines = truncate_path_if_needed(wrapped_path_lines, 3, estimated_max_width);
     let path_width = truncated_path_lines.iter().map(|s| s.len()).max().unwrap_or(0);
+    */
+
+    // Glitchy debug output - useless for intended implemenation (clashes with TUI) but looks sick in execution
+    // dbg!(scatters_width, controls_width);
+    // dbg!(content_width);
+
+    // Log to file for debugging
+    /*
+    if let Ok(mut file) = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("debug.log") {
+        writeln!(file, "scatters_width: {}, controls_width: {}, content_width: {}",
+                 scatters_width, controls_width, content_width).ok();
+    }
+    */
 
     // Take the maximum of all sections
-    let content_width = scatters_width.max(density_width).max(controls_width).max(info_width).max(path_width);
+    // let content_width = scatters_width.max(controls_width).max(info_width).max(path_width);
 
     // Add padding for borders (2) and internal padding (2) and a bit extra (2)
-    (content_width as u16 + 6).min(20) // Cap sidebar width to 20
-}
+    // (content_width + 6) as u16
+
+  
 
 fn widget_block(border_type: BorderType) -> Block<'static> {
     Block::default()
@@ -262,7 +293,7 @@ fn wrap_text_line(text: &str, max_width: usize) -> Vec<String> {
 pub fn ui(f: &mut Frame, app: &mut App) {
     let frame_area = f.area();
 
-    // Render unified white background for monochrome theme
+    // Render unified background for theme when necessary
     if app.styling.use_background_fill {
         let background = widget_block(app.styling.border_type)
             .style(app.styling.text_style)
