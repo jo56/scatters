@@ -1,7 +1,7 @@
 # Text Scatters
 
   <div align="center">
-          <img src="assets/screenshot-gruvbox-14.png" alt="gruvbox preview">
+          <img src="assets/screenshot-gruvbox-15.png" alt="gruvbox preview">
       <br>
           <i>Example run with gruvbox theme</i>
     <br>
